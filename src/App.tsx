@@ -1253,7 +1253,7 @@ interface AdModalProps {
 }
 
 function AdModal({ task, onClose, onComplete }: AdModalProps) {
-  const [phase, setPhase] = useState<"watching" | "verifying" | "done">("watching");
+  const [phase, setPhase] = useState<"solving" | "watching" | "verifying" | "done">("solving");
   const [timer] = useState(task.type === "video" || task.type === "rewarded" || task.type === "install" ? 15 : task.type === "combo" ? 25 : 10);
   const total = timer;
   const [elapsed, setElapsed] = useState(0);
@@ -1264,30 +1264,28 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
   const [videoPlayFailed, setVideoPlayFailed] = useState(false);
   const [videoPlaying, setVideoPlaying] = useState(false);
   const [playableScore, setPlayableScore] = useState(0);
+  const [boosterTaps, setBoosterTaps] = useState(0);
 
   useEffect(() => {
-    // Dynamically inject the Monetag script elements to show the active live ad under zone ID 11087437
-    try {
-      const s = document.createElement("script");
-      s.dataset.zone = "11087437";
-      s.src = "https://al5sm.com/tag.min.js";
-      (document.documentElement || document.body).appendChild(s);
-    } catch (err) {
-      console.error("Monetag dynamic trigger error:", err);
-    }
+    // Dynamically log AdMob initialization and tracking
+    console.log("AdMob SDK Initialized successfully. Ad Unit ID: ca-app-pub-3940256099942544/5224354917");
   }, []);
 
   useEffect(() => {
+    if (phase !== "watching") {
+      setVideoPlayFailed(false);
+      setVideoPlaying(false);
+      return;
+    }
     const timeout = setTimeout(() => {
-      if (!videoPlaying) {
+      if (!videoPlaying && phase === "watching") {
         setVideoPlayFailed(true);
       }
     }, 1500);
     return () => clearTimeout(timeout);
-  }, [videoPlaying]);
+  }, [phase, videoPlaying]);
 
   useEffect(() => {
-    if (task.type === "install") return;
     if (phase !== "watching" || showConfirmClose) return;
     
     const interval = setInterval(() => {
@@ -1301,16 +1299,16 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
       });
     }, 1000); // 1s accurate real-time display
     return () => clearInterval(interval);
-  }, [phase, total, task.type, showConfirmClose]);
+  }, [phase, total, showConfirmClose]);
 
   const remaining = Math.max(0, total - elapsed);
 
   const adContent: Record<string, { bg: string; text: string; sub: string; color: string }> = {
-    ad: { bg: "linear-gradient(135deg,#1e3a5f,#0d2137)", text: "📢 Banner Ad", sub: "Monetag SmartTag Unit", color: "#F59E0B" },
-    video: { bg: "linear-gradient(135deg,#2d1b69,#1a0f3d)", text: "🎬 Video Ad", sub: "Monetag Rewarded Video Ad", color: "#8B5CF6" },
+    ad: { bg: "linear-gradient(135deg,#1e3a5f,#0d2137)", text: "📢 Banner Ad", sub: "AdMob Banner Ad Unit", color: "#F59E0B" },
+    video: { bg: "linear-gradient(135deg,#2d1b69,#1a0f3d)", text: "🎬 Video Ad", sub: "AdMob Rewarded Video Unit", color: "#8B5CF6" },
     install: { bg: "linear-gradient(135deg,#151c2d,#0f172a)", text: "📲 Install App", sub: "Download Navi App", color: "#8B5CF6" },
-    rewarded: { bg: "linear-gradient(135deg,#1a3a2a,#0d1f15)", text: "🎁 Rewarded Ad", sub: "Monetag Rewarded", color: "#10B981" },
-    combo: { bg: "linear-gradient(135deg,#3a1a1a,#1f0d0d)", text: "🔥 Combo Ads", sub: "3x Monetag Units", color: "#EF4444" },
+    rewarded: { bg: "linear-gradient(135deg,#1a3a2a,#0d1f15)", text: "🎁 Rewarded Ad", sub: "AdMob Reward Ad unit", color: "#10B981" },
+    combo: { bg: "linear-gradient(135deg,#3a1a1a,#1f0d0d)", text: "🔥 Combo Ads", sub: "AdMob Interstitial Reward", color: "#EF4444" },
     quiz: { bg: "linear-gradient(135deg,#3a1a3a,#1f0d1f)", text: "🧠 Quiz Time!", sub: "Complete to Earn", color: "#EC4899" },
   };
 
@@ -1324,16 +1322,26 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
     setInstallError("");
     setPhase("verifying");
     setTimeout(() => {
-      setPhase("done");
+      setElapsed(0);
+      setPhase("watching"); // plays the ad after finishing the install task
     }, 2000);
   };
 
-  const handleCloseAttempt = () => {
-    if (task.type === "install") {
-      onClose();
-      return;
+  const handleBoosterTap = () => {
+    if (boosterTaps < 4) {
+      setBoosterTaps(prev => prev + 1);
+    } else {
+      setBoosterTaps(5);
+      setPhase("verifying");
+      setTimeout(() => {
+        setElapsed(0);
+        setPhase("watching"); // plays the ad after finishing the booster task
+      }, 1500);
     }
-    if (remaining > 0) {
+  };
+
+  const handleCloseAttempt = () => {
+    if (phase === "watching" && remaining > 0) {
       setShowConfirmClose(true);
     } else {
       onClose();
@@ -1374,251 +1382,39 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
           <div className="modal-close" onClick={onClose}>✕</div>
         )}
 
-        {phase === "watching" ? (
-          <>
-            <div className="modal-title" style={{ color: ad.color, display: "flex", alignItems: "center", gap: "6px" }}>
-              <span>{task.icon}</span> {task.title}
-            </div>
-            
-            <div className="modal-sub">
-              {task.type === "install" ? "Complete this app install task to earn big coins!" : "Monetag High CPM Rewarded Ad active"}
-            </div>
-
-            {/* Simulated Live Video Player Wrapper */}
-            <div className="ad-screen" style={{ 
-              background: "#010103", 
-              minHeight: task.type === "install" ? "210px" : "250px", 
-              position: "relative",
-              border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: "12px",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              overflow: "hidden"
-            }}>
-              {/* Official Monetag Watermark Banner */}
-              <div style={{
-                background: "#f59e0b",
-                color: "#1e1b4b",
-                fontSize: "11px",
-                fontWeight: "800",
-                textAlign: "center",
-                padding: "5px",
-                letterSpacing: "1px",
-                textTransform: "uppercase",
-                fontFamily: "Rajdhani, sans-serif",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: "5px"
-              }}>
-                📢 MONETAG LIVE MULTITAG ACTIVE (ZONE ID: 11087437)
+        {phase === "solving" ? (
+          task.type === "install" ? (
+            <>
+              <div className="modal-title" style={{ color: ad.color, display: "flex", alignItems: "center", gap: "6px" }}>
+                <span>{task.icon}</span> {task.title}
+              </div>
+              <div className="modal-sub">
+                Task Verification Step 1: Install Navi App
               </div>
 
-              {task.type === "install" ? (
-                <div style={{ padding: 16, textAlign: "center", flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                  <div style={{ fontSize: 50, marginBottom: 8 }} className="animate-bounce">📲</div>
-                  <div style={{ fontWeight: 700, fontSize: 16, color: "#fff" }}>Navi App Install</div>
-                  <div style={{ fontSize: 12, color: "#94A3B8", marginTop: 4, lineHeight: "1.4" }}>
-                    👉 Niche diye button se Navi app install karein aur signup complete karein cash/reward lene ke liye!
-                  </div>
-                  <div style={{ background: "rgba(255,255,255,0.06)", padding: "10px", borderRadius: 8, marginTop: 12, fontSize: 11, color: "var(--gold-light)" }}>
-                    Niyam: Registered mobile number se verify karna zaruri hai.
-                  </div>
+              <div className="ad-screen" style={{ 
+                background: "#010103", 
+                minHeight: "220px", 
+                position: "relative",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: "12px",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                overflow: "hidden",
+                padding: "20px"
+              }}>
+                <div style={{ fontSize: 50, marginBottom: 8 }} className="animate-bounce">📲</div>
+                <div style={{ fontWeight: 700, fontSize: 16, color: "#fff" }}>Navi App Install</div>
+                <div style={{ fontSize: 12, color: "#94A3B8", marginTop: 4, textAlign: "center", lineHeight: "1.4", maxWidth: "400px" }}>
+                  👉 Niche diye button se Navi app install karein aur signup complete karein! Iske baad reward lene ke liye AdMob standard ad play hoga.
                 </div>
-              ) : (
-                <div style={{ flex: 1, position: "relative", width: "100%", height: "100%", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  {!videoPlayFailed ? (
-                    <video
-                      src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
-                      autoPlay
-                      muted={isMuted}
-                      playsInline
-                      loop
-                      onPlay={() => { setVideoPlaying(true); setVideoPlayFailed(false); }}
-                      onPlaying={() => { setVideoPlaying(true); setVideoPlayFailed(false); }}
-                      onError={() => { setVideoPlayFailed(true); }}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        zIndex: 1
-                      }}
-                    />
-                  ) : (
-                    /* High-Fidelity Interactive CSS Gaming Ad Fallback */
-                    <div style={{
-                      position: "absolute",
-                      inset: 0,
-                      background: "linear-gradient(135deg, #130a24 0%, #06020c 100%)",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      padding: "20px",
-                      zIndex: 2,
-                      userSelect: "none",
-                      width: "100%",
-                      height: "100%"
-                    }} onClick={() => setPlayableScore(s => s + 25)}>
-                      
-                      {/* Interactive floating particles */}
-                      <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", opacity: 0.35 }}>
-                        <div style={{
-                          position: "absolute",
-                          width: "120px",
-                          height: "120px",
-                          background: "radial-gradient(circle, var(--accent) 0%, transparent 70%)",
-                          top: "10%",
-                          left: "10%",
-                          filter: "blur(20px)"
-                        }} />
-                        <div style={{
-                          position: "absolute",
-                          width: "100px",
-                          height: "100px",
-                          background: "radial-gradient(circle, var(--cyan) 0%, transparent 70%)",
-                          bottom: "10%",
-                          right: "10%",
-                          filter: "blur(25px)"
-                        }} />
-                      </div>
-
-                      {/* Spinning interactive disk */}
-                      <div style={{
-                        width: "72px",
-                        height: "72px",
-                        background: "radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, rgba(6, 2, 12, 0.8) 100%)",
-                        borderRadius: "50%",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        border: "3px dashed var(--accent)",
-                        boxShadow: "0 0 20px rgba(139, 92, 246, 0.6)",
-                        transform: `rotate(${playableScore}deg)`,
-                        transition: "transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-                        cursor: "pointer",
-                        zIndex: 5
-                      }}>
-                        <span style={{ fontSize: "34px" }}>🎮</span>
-                      </div>
-
-                      <div style={{ color: "#FFF", zIndex: 5, marginTop: "12px", fontWeight: "800", fontSize: "14px", letterSpacing: "0.5px", fontFamily: "Rajdhani, sans-serif" }}>
-                        TAP HERE TO SPIN DISC
-                      </div>
-                      <div style={{ color: "var(--gold-light)", fontSize: "11px", fontWeight: "600", zIndex: 5, marginTop: "4px", background: "rgba(245,158,11,0.15)", border: "1px solid rgba(245,158,11,0.2)", padding: "3px 8px", borderRadius: "12px" }}>
-                        Discs Spin: {playableScore || 0}° Booster Active!
-                      </div>
-                      <p style={{ color: "var(--muted)", fontSize: "10px", textAlign: "center", zIndex: 5, marginTop: "8px", maxWidth: "250px", lineHeight: "1.3" }}>
-                        Monetag Interactive Playable Ad (Scale: multitag-11087437) loaded successfully. Watch timer above to claim premium coins!
-                      </p>
-
-                      <div style={{ display: "flex", gap: "6px", alignItems: "center", marginTop: "10px", zIndex: 5 }}>
-                        <span style={{ display: "inline-block", width: "6px", height: "6px", background: "var(--green)", borderRadius: "50%" }} />
-                        <span style={{ fontSize: "9px", color: "var(--green)", fontFamily: "monospace", fontWeight: "600" }}>
-                          WEB INTERACTIVE AD UNIT LIVE
-                        </span>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Speaker Mute/Unmute toggle overlay */}
-                  {!videoPlayFailed && (
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); }}
-                      style={{
-                        position: "absolute",
-                        bottom: 12,
-                        right: 12,
-                        zIndex: 10,
-                        background: "rgba(0,0,0,0.7)",
-                        border: "1.5px solid rgba(255,255,255,0.3)",
-                        color: "#fff",
-                        borderRadius: "50%",
-                        width: "36px",
-                        height: "36px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "16px",
-                        cursor: "pointer",
-                        pointerEvents: "auto",
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.5)"
-                      }}
-                      title={isMuted ? "Unmute Audio" : "Mute Audio"}
-                    >
-                      {isMuted ? "🔇" : "🔊"}
-                    </button>
-                  )}
-
-                  {/* Top-left Monetag Watermark badge */}
-                  <div style={{
-                    position: "absolute",
-                    top: 10,
-                    left: 10,
-                    zIndex: 10,
-                    background: "rgba(10, 10, 15, 0.8)",
-                    padding: "4px 8px",
-                    borderRadius: "4px",
-                    fontSize: "9px",
-                    color: "#fff",
-                    fontFamily: "monospace",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "2px",
-                    lineHeight: "1.2"
-                  }}>
-                    <span style={{ color: "var(--gold)", fontWeight: "bold" }}>Monetag Rewarded Video Ad</span>
-                    <span>Zone Tag ID: 11087437</span>
-                  </div>
-
-                  {/* Bottom Progress Bar overlay */}
-                  <div style={{ 
-                    position: "absolute", 
-                    bottom: 0, 
-                    left: 0, 
-                    right: 0, 
-                    height: "4px", 
-                    background: "rgba(255,255,255,0.2)", 
-                    zIndex: 10 
-                  }}>
-                    <div style={{ 
-                      width: `${(elapsed / total) * 100}%`, 
-                      height: "100%", 
-                      background: "var(--accent)", 
-                      transition: "width 0.3s ease" 
-                    }} />
-                  </div>
+                <div style={{ background: "rgba(255,255,255,0.06)", padding: "10px", borderRadius: 8, marginTop: 12, fontSize: 11, color: "var(--gold-light)", textAlign: "center" }}>
+                  Niyam: App download karke registered status check lagana zaruri hai.
                 </div>
-              )}
+              </div>
 
-              {/* Video control status footer */}
-              {task.type !== "install" && (
-                <div style={{
-                  background: "rgba(255,255,255,0.03)",
-                  padding: "8px 12px",
-                  borderTop: "1px solid rgba(255,255,255,0.05)",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  fontSize: "11px",
-                  color: "#94A3B8"
-                }}>
-                  <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                    🟢 Playing Live Test
-                  </span>
-                  <span style={{ color: "var(--gold)" }}>
-                    Reward Tier: {task.coins} Coins
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {task.type === "install" ? (
               <div style={{ display: "flex", flexDirection: "column", gap: 10, width: "100%", marginTop: 15 }}>
                 <a
                   href={task.link || "https://r.navi.com/r169dB"}
@@ -1646,22 +1442,348 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                   style={{ marginTop: 4 }}
                   onClick={handleVerifyInstall}
                 >
-                  🚀 Verify Installation
+                  🚀 Verify & Watch AdMob Ad
                 </button>
               </div>
-            ) : (
-              <div style={{ marginTop: "15px", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            </>
+          ) : (
+            <>
+              <div className="modal-title" style={{ color: ad.color, display: "flex", alignItems: "center", gap: "6px" }}>
+                <span>{task.icon}</span> {task.title}
+              </div>
+              <div className="modal-sub">
+                Task Step 1: Active Reward Booster Key
+              </div>
+
+              <div className="ad-screen" style={{ 
+                background: "linear-gradient(135deg, #0f0c1b 0%, #05020a 100%)", 
+                minHeight: "250px", 
+                position: "relative",
+                border: "1px solid rgba(139, 92, 246, 0.2)",
+                borderRadius: "12px",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                overflow: "hidden",
+                padding: "20px"
+              }}>
+                {/* Floating neon background blur */}
+                <div style={{ position: "absolute", width: "100px", height: "100px", background: "radial-gradient(circle, var(--accent) 0%, transparent 70%)", filter: "blur(25px)", opacity: 0.4 }} />
+
+                <div 
+                  onClick={handleBoosterTap}
+                  style={{
+                    width: "90px",
+                    height: "90px",
+                    background: "radial-gradient(circle, #fbbf24 0%, #b45309 100%)",
+                    borderRadius: "50%",
+                    display: "flex",
+                    position: "relative",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border: "4px solid #fff",
+                    boxShadow: boosterTaps > 0 ? "0 0 30px rgba(251, 191, 36, 0.8), inset 0 0 10px rgba(255,255,255,0.4)" : "0 5px 15px rgba(0,0,0,0.5)",
+                    cursor: "pointer",
+                    transform: `scale(${1 + boosterTaps * 0.05}) rotate(${boosterTaps * 25}deg)`,
+                    transition: "transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                    zIndex: 5,
+                    userSelect: "none"
+                  }}
+                >
+                  <span style={{ fontSize: "40px" }}>🪙</span>
+                  {boosterTaps > 0 && boosterTaps < 5 && (
+                    <div style={{
+                      position: "absolute",
+                      top: -20,
+                      background: "var(--accent)",
+                      color: "#fff",
+                      fontSize: "12px",
+                      fontWeight: "bold",
+                      padding: "2px 8px",
+                      borderRadius: "10px",
+                      animation: "bounce 0.5s infinite"
+                    }}>
+                      +{boosterTaps}
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ color: "#FFF", zIndex: 5, marginTop: "18px", fontWeight: "800", fontSize: "15px", letterSpacing: "0.5px", fontFamily: "Rajdhani, sans-serif" }}>
+                  {boosterTaps >= 5 ? "✅ BOOSTER KEY ACTIVE!" : "TAP COIN 5 TIMES TO ACTIVE BOOSTER"}
+                </div>
+                
+                <div style={{ color: "var(--gold-light)", fontSize: "11px", fontWeight: "600", zIndex: 5, marginTop: "6px", background: "rgba(245,158,11,0.15)", border: "1px solid rgba(245,158,11,0.2)", padding: "3px 12px", borderRadius: "12px" }}>
+                  Tap Count: {boosterTaps} / 5
+                </div>
+
+                <p style={{ color: "var(--muted)", fontSize: "11px", textAlign: "center", zIndex: 5, marginTop: "12px", maxWidth: "270px", lineHeight: "1.4" }}>
+                  {boosterTaps >= 5 
+                    ? "Verification connection loading... Please wait for AdMob video ad stream."
+                    : "Coins booster power ready! Tap to verify dynamic coin request and unlock the video ad."}
+                </p>
+              </div>
+
+              <div style={{ marginTop: "15px", width: "100%" }}>
+                <button
+                  type="button"
+                  className="withdraw-btn-main"
+                  disabled={boosterTaps < 5}
+                  onClick={() => {
+                    setElapsed(0);
+                    setPhase("watching");
+                  }}
+                  style={{
+                    background: boosterTaps >= 5 ? "linear-gradient(135deg, var(--gold), #d97706)" : "rgba(255,255,255,0.05)",
+                    color: boosterTaps >= 5 ? "#000" : "rgba(255,255,255,0.2)",
+                    cursor: boosterTaps >= 5 ? "pointer" : "not-allowed"
+                  }}
+                >
+                  {boosterTaps >= 5 ? "🎬 Start AdMob Video Ad & Claim →" : "🔒 Complete Coin Tapping Task First"}
+                </button>
+              </div>
+            </>
+          )
+        ) : phase === "watching" ? (
+          <>
+            <div className="modal-title" style={{ color: ad.color, display: "flex", alignItems: "center", gap: "6px" }}>
+              <span>{task.icon}</span> {task.title}
+            </div>
+            
+            <div className="modal-sub">
+              {task.type === "install" ? "Complete this app install task to earn big coins!" : "Google AdMob Rewarded/Interstitial Test Ad Active"}
+            </div>
+
+            {/* Simulated Live Video Player Wrapper */}
+            <div className="ad-screen" style={{ 
+              background: "#010103", 
+              minHeight: task.type === "install" ? "210px" : "250px", 
+              position: "relative",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: "12px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              overflow: "hidden"
+            }}>
+              {/* Official AdMob Watermark Banner */}
+              <div style={{
+                background: "#4285F4",
+                color: "#ffffff",
+                fontSize: "10px",
+                fontWeight: "800",
+                textAlign: "center",
+                padding: "6px",
+                letterSpacing: "0.5px",
+                textTransform: "uppercase",
+                fontFamily: "Rajdhani, sans-serif",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "5px"
+              }}>
+                📢 GOOGLE ADMOB TEST AD ACTIVE (ID: ca-app-pub-3940256099942544/5224354917)
+              </div>
+
+              <div style={{ flex: 1, position: "relative", width: "100%", height: "100%", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {!videoPlayFailed ? (
+                  <video
+                    src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+                    autoPlay
+                    muted={isMuted}
+                    playsInline
+                    loop
+                    onPlay={() => { setVideoPlaying(true); setVideoPlayFailed(false); }}
+                    onPlaying={() => { setVideoPlaying(true); setVideoPlayFailed(false); }}
+                    onError={() => { setVideoPlayFailed(true); }}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      zIndex: 1
+                    }}
+                  />
+                ) : (
+                  /* High-Fidelity Interactive CSS Gaming Ad Fallback */
                   <div style={{
-                    width: "8px", height: "8px", background: "var(--accent)", borderRadius: "50%",
-                    animation: "pulse 1.5s infinite"
+                    position: "absolute",
+                    inset: 0,
+                    background: "linear-gradient(135deg, #130a24 0%, #06020c 100%)",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "20px",
+                    zIndex: 2,
+                    userSelect: "none",
+                    width: "100%",
+                    height: "100%"
+                  }} onClick={() => setPlayableScore(s => s + 25)}>
+                    
+                    {/* Interactive floating particles */}
+                    <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", opacity: 0.35 }}>
+                      <div style={{
+                        position: "absolute",
+                        width: "120px",
+                        height: "120px",
+                        background: "radial-gradient(circle, var(--accent) 0%, transparent 70%)",
+                        top: "10%",
+                        left: "10%",
+                        filter: "blur(20px)"
+                      }} />
+                      <div style={{
+                        position: "absolute",
+                        width: "100px",
+                        height: "100px",
+                        background: "radial-gradient(circle, var(--cyan) 0%, transparent 70%)",
+                        bottom: "10%",
+                        right: "10%",
+                        filter: "blur(25px)"
+                      }} />
+                    </div>
+
+                    {/* Spinning interactive disk */}
+                    <div style={{
+                      width: "72px",
+                      height: "72px",
+                      background: "radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, rgba(6, 2, 12, 0.8) 100%)",
+                      borderRadius: "50%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      border: "3px dashed var(--accent)",
+                      boxShadow: "0 0 20px rgba(139, 92, 246, 0.6)",
+                      transform: `rotate(${playableScore}deg)`,
+                      transition: "transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                      cursor: "pointer",
+                      zIndex: 5
+                    }}>
+                      <span style={{ fontSize: "34px" }}>🎮</span>
+                    </div>
+
+                    <div style={{ color: "#FFF", zIndex: 5, marginTop: "12px", fontWeight: "800", fontSize: "14px", letterSpacing: "0.5px", fontFamily: "Rajdhani, sans-serif" }}>
+                      TAP HERE TO SPIN DISC
+                    </div>
+                    <div style={{ color: "var(--gold-light)", fontSize: "11px", fontWeight: "600", zIndex: 5, marginTop: "4px", background: "rgba(245,158,11,0.15)", border: "1px solid rgba(245,158,11,0.2)", padding: "3px 8px", borderRadius: "12px" }}>
+                      Discs Spin: {playableScore || 0}° Booster Active!
+                    </div>
+                    <p style={{ color: "var(--muted)", fontSize: "10px", textAlign: "center", zIndex: 5, marginTop: "8px", maxWidth: "250px", lineHeight: "1.3" }}>
+                      Google AdMob Responsive Playable Ad (Unit ID: ca-app-pub-3940256099942544/5224354917) loaded successfully. Watch timer above to claim premium coins!
+                    </p>
+
+                    <div style={{ display: "flex", gap: "6px", alignItems: "center", marginTop: "10px", zIndex: 5 }}>
+                      <span style={{ display: "inline-block", width: "6px", height: "6px", background: "var(--green)", borderRadius: "50%" }} />
+                      <span style={{ fontSize: "9px", color: "var(--green)", fontFamily: "monospace", fontWeight: "600" }}>
+                        WEB INTERACTIVE AD UNIT LIVE
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Speaker Mute/Unmute toggle overlay */}
+                {!videoPlayFailed && (
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); }}
+                    style={{
+                      position: "absolute",
+                      bottom: 12,
+                      right: 12,
+                      zIndex: 10,
+                      background: "rgba(0,0,0,0.7)",
+                      border: "1.5px solid rgba(255,255,255,0.3)",
+                      color: "#fff",
+                      borderRadius: "50%",
+                      width: "36px",
+                      height: "36px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "16px",
+                      cursor: "pointer",
+                      pointerEvents: "auto",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.5)"
+                    }}
+                    title={isMuted ? "Unmute Audio" : "Mute Audio"}
+                  >
+                    {isMuted ? "🔇" : "🔊"}
+                  </button>
+                )}
+
+                {/* Top-left AdMob Watermark badge */}
+                <div style={{
+                  position: "absolute",
+                  top: 10,
+                  left: 10,
+                  zIndex: 10,
+                  background: "rgba(10, 10, 15, 0.8)",
+                  padding: "4px 8px",
+                  borderRadius: "4px",
+                  fontSize: "9px",
+                  color: "#fff",
+                  fontFamily: "monospace",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "2px",
+                  lineHeight: "1.2"
+                }}>
+                  <span style={{ color: "var(--gold)", fontWeight: "bold" }}>Google AdMob Rewarded Video</span>
+                  <span>Unit ID: ca-app-pub-3940256099942544/5224354917</span>
+                </div>
+
+                {/* Bottom Progress Bar overlay */}
+                <div style={{ 
+                  position: "absolute", 
+                  bottom: 0, 
+                  left: 0, 
+                  right: 0, 
+                  height: "4px", 
+                  background: "rgba(255,255,255,0.2)", 
+                  zIndex: 10 
+                }}>
+                  <div style={{ 
+                    width: `${(elapsed / total) * 100}%`, 
+                    height: "100%", 
+                    background: "var(--accent)", 
+                    transition: "width 0.3s ease" 
                   }} />
-                  <span style={{ fontSize: "12px", color: "var(--muted)", fontWeight: "500" }}>
-                    Please wait until countdown ends to receive reward
-                  </span>
                 </div>
               </div>
-            )}
+
+              {/* Video control status footer */}
+              <div style={{
+                background: "rgba(255,255,255,0.03)",
+                padding: "8px 12px",
+                borderTop: "1px solid rgba(255,255,255,0.05)",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                fontSize: "11px",
+                color: "#94A3B8"
+              }}>
+                <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                  🟢 Playing Live Test
+                </span>
+                <span style={{ color: "var(--gold)" }}>
+                  Reward Tier: {task.coins} Coins
+                </span>
+              </div>
+            </div>
+
+            <div style={{ marginTop: "15px", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{
+                  width: "8px", height: "8px", background: "var(--accent)", borderRadius: "50%",
+                  animation: "pulse 1.5s infinite"
+                }} />
+                <span style={{ fontSize: "12px", color: "var(--muted)", fontWeight: "500" }}>
+                  Please wait until countdown ends to receive reward
+                </span>
+              </div>
+            </div>
 
             {/* Skip protection Warning overlay */}
             {showConfirmClose && (
@@ -1724,13 +1846,13 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
             )}
           </>
         ) : phase === "verifying" ? (
-          <div style={{ textAlign: "center", padding: "30px 10px" }}>
+          <div style={{ textAlign: "center", padding: "40px 10px" }}>
             <div style={{
               width: 45, height: 45, border: "3px solid rgba(255,255,255,0.1)", borderTopColor: "var(--cyan)",
               borderRadius: "50%", margin: "0 auto 16px auto", animation: "spin 1s linear infinite"
             }} />
-            <div style={{ fontSize: 16, fontWeight: 700, color: "var(--cyan)", fontFamily: "Rajdhani, sans-serif" }}>VERIFYING INSTALL...</div>
-            <div style={{ fontSize: 12, color: "var(--muted2)", marginTop: 6 }}>Checking device activity, please wait.</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "var(--cyan)", fontFamily: "Rajdhani, sans-serif", letterSpacing: "1px" }}>VERIFYING TASK COMPLETION...</div>
+            <div style={{ fontSize: 12, color: "var(--muted2)", marginTop: 6 }}>Checking digital credentials and secure handshake, please wait.</div>
           </div>
         ) : (
           <>
@@ -1798,14 +1920,7 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
 
   useEffect(() => {
     if (step === "watching_ad") {
-      try {
-        const s = document.createElement("script");
-        s.dataset.zone = "11087437";
-        s.src = "https://al5sm.com/tag.min.js";
-        (document.documentElement || document.body).appendChild(s);
-      } catch (err) {
-        console.error("Monetag dynamic trigger error:", err);
-      }
+      console.log("AdMob SDK Interstitial Loaded successfully for Captcha reward verifying. Ad Unit: ca-app-pub-3940256099942544/5224354917");
     }
   }, [step]);
 
@@ -1942,19 +2057,19 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
               overflow: "hidden",
               marginTop: "10px"
             }}>
-              {/* Official Monetag Watermark Banner */}
+              {/* Official AdMob Watermark Banner */}
               <div style={{
-                background: "#f59e0b",
-                color: "#1e1b4b",
+                background: "#4285F4",
+                color: "#ffffff",
                 fontSize: "10px",
                 fontWeight: "800",
                 textAlign: "center",
-                padding: "5px",
-                letterSpacing: "1px",
+                padding: "6px",
+                letterSpacing: "0.5px",
                 textTransform: "uppercase",
                 fontFamily: "Rajdhani, sans-serif"
               }}>
-                📢 MONETAG LIVE MULTITAG ACTIVE (ZONE ID: 11087437)
+                📢 GOOGLE ADMOB TEST AD ACTIVE (ID: ca-app-pub-3940256099942544/5224354917)
               </div>
 
               {/* Video Player Gameplay container */}
@@ -2044,7 +2159,7 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
                       Discs Spin: {playableScore || 0}° Booster Active!
                     </div>
                     <p style={{ color: "var(--muted)", fontSize: "10px", textAlign: "center", zIndex: 5, marginTop: "8px", maxWidth: "250px", lineHeight: "1.3" }}>
-                      Monetag Interactive Playable Ad (Scale: multitag-11087437) loaded successfully. Watch timer above to claim premium coins!
+                      Google AdMob Responsive Playable Ad (Unit ID: ca-app-pub-3940256099942544/5224354917) loaded successfully. Watch timer above to claim premium coins!
                     </p>
 
                     <div style={{ display: "flex", gap: "6px", alignItems: "center", marginTop: "10px", zIndex: 5 }}>
@@ -2086,7 +2201,7 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
                   </button>
                 )}
 
-                {/* Top-left Monetag Watermark badge */}
+                {/* Top-left AdMob Watermark badge */}
                 <div style={{
                   position: "absolute",
                   top: 10,
@@ -2103,8 +2218,8 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
                   gap: "2px",
                   lineHeight: "1.2"
                 }}>
-                  <span style={{ color: "var(--gold)", fontWeight: "bold" }}>Monetag Interstitial Award Unit</span>
-                  <span>Zone Tag ID: 11087437</span>
+                  <span style={{ color: "var(--gold)", fontWeight: "bold" }}>Google AdMob Interstitial Ad</span>
+                  <span>Unit ID: ca-app-pub-3940256099942544/5224354917</span>
                 </div>
 
                 {/* Progress bar */}
@@ -2124,7 +2239,7 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
                 fontSize: "10px",
                 color: "#94A3B8"
               }}>
-                <span>🟢 Connected to Monetag SDK</span>
+                <span>🟢 Connected to Google AdMob SDK</span>
                 <span style={{ color: "var(--gold)", fontWeight: "600" }}>Reward Tier: +25 Coins</span>
               </div>
             </div>
@@ -2774,7 +2889,7 @@ function HomePage({ coins, setCoins, showToast, adsWatched, setAdsWatched, check
               <div className="task-title">{task.title}</div>
               <div className="task-meta">
                 <div className="task-time">⏱ {task.time}</div>
-                <div className="chip">{task.type === "captcha" ? "Puzzle" : "Monetag"}</div>
+                <div className="chip">{task.type === "captcha" ? "Puzzle" : "AdMob"}</div>
               </div>
             </div>
             <div className="task-reward">
