@@ -1266,6 +1266,18 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
   const [playableScore, setPlayableScore] = useState(0);
 
   useEffect(() => {
+    // Dynamically inject the Monetag script elements to show the active live ad under zone ID 11087437
+    try {
+      const s = document.createElement("script");
+      s.dataset.zone = "11087437";
+      s.src = "https://al5sm.com/tag.min.js";
+      (document.documentElement || document.body).appendChild(s);
+    } catch (err) {
+      console.error("Monetag dynamic trigger error:", err);
+    }
+  }, []);
+
+  useEffect(() => {
     const timeout = setTimeout(() => {
       if (!videoPlaying) {
         setVideoPlayFailed(true);
@@ -1400,7 +1412,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                 alignItems: "center",
                 gap: "5px"
               }}>
-                📢 MONETAG LIVE MULTITAG ACTIVE (ID: 6cdac0672fd8c83041a821ab03d461a1)
+                📢 MONETAG LIVE MULTITAG ACTIVE (ZONE ID: 11087437)
               </div>
 
               {task.type === "install" ? (
@@ -1501,7 +1513,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                         Discs Spin: {playableScore || 0}° Booster Active!
                       </div>
                       <p style={{ color: "var(--muted)", fontSize: "10px", textAlign: "center", zIndex: 5, marginTop: "8px", maxWidth: "250px", lineHeight: "1.3" }}>
-                        Monetag Interactive Playable Ad (Scale: multitag-6cdac0) loaded successfully. Watch timer above to claim premium coins!
+                        Monetag Interactive Playable Ad (Scale: multitag-11087437) loaded successfully. Watch timer above to claim premium coins!
                       </p>
 
                       <div style={{ display: "flex", gap: "6px", alignItems: "center", marginTop: "10px", zIndex: 5 }}>
@@ -1561,7 +1573,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                     lineHeight: "1.2"
                   }}>
                     <span style={{ color: "var(--gold)", fontWeight: "bold" }}>Monetag Rewarded Video Ad</span>
-                    <span>Zone Tag ID: 6cdac0672fd8c83041a821ab03d461a1</span>
+                    <span>Zone Tag ID: 11087437</span>
                   </div>
 
                   {/* Bottom Progress Bar overlay */}
@@ -1785,6 +1797,19 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
   }, [step, videoPlaying]);
 
   useEffect(() => {
+    if (step === "watching_ad") {
+      try {
+        const s = document.createElement("script");
+        s.dataset.zone = "11087437";
+        s.src = "https://al5sm.com/tag.min.js";
+        (document.documentElement || document.body).appendChild(s);
+      } catch (err) {
+        console.error("Monetag dynamic trigger error:", err);
+      }
+    }
+  }, [step]);
+
+  useEffect(() => {
     if (step !== "watching_ad" || showConfirmClose) return;
 
     const interval = setInterval(() => {
@@ -1929,7 +1954,7 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
                 textTransform: "uppercase",
                 fontFamily: "Rajdhani, sans-serif"
               }}>
-                📢 MONETAG LIVE MULTITAG ACTIVE (ID: 6cdac0672fd8c83041a821ab03d461a1)
+                📢 MONETAG LIVE MULTITAG ACTIVE (ZONE ID: 11087437)
               </div>
 
               {/* Video Player Gameplay container */}
@@ -2019,7 +2044,7 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
                       Discs Spin: {playableScore || 0}° Booster Active!
                     </div>
                     <p style={{ color: "var(--muted)", fontSize: "10px", textAlign: "center", zIndex: 5, marginTop: "8px", maxWidth: "250px", lineHeight: "1.3" }}>
-                      Monetag Interactive Playable Ad (Scale: multitag-6cdac0) loaded successfully. Watch timer above to claim premium coins!
+                      Monetag Interactive Playable Ad (Scale: multitag-11087437) loaded successfully. Watch timer above to claim premium coins!
                     </p>
 
                     <div style={{ display: "flex", gap: "6px", alignItems: "center", marginTop: "10px", zIndex: 5 }}>
@@ -2079,7 +2104,7 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
                   lineHeight: "1.2"
                 }}>
                   <span style={{ color: "var(--gold)", fontWeight: "bold" }}>Monetag Interstitial Award Unit</span>
-                  <span>Zone Tag ID: 6cdac0672fd8c83041a821ab03d461a1</span>
+                  <span>Zone Tag ID: 11087437</span>
                 </div>
 
                 {/* Progress bar */}
