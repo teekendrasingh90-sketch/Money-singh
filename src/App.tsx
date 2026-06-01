@@ -1294,11 +1294,11 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
   const remaining = Math.max(0, total - elapsed);
 
   const adContent: Record<string, { bg: string; text: string; sub: string; color: string }> = {
-    ad: { bg: "linear-gradient(135deg,#1e3a5f,#0d2137)", text: "📢 Banner Ad", sub: "AdMob Banner Unit", color: "#F59E0B" },
-    video: { bg: "linear-gradient(135deg,#2d1b69,#1a0f3d)", text: "🎬 Video Ad", sub: "AdMob Rewarded Video Ad", color: "#8B5CF6" },
+    ad: { bg: "linear-gradient(135deg,#1e3a5f,#0d2137)", text: "📢 Banner Ad", sub: "Monetag SmartTag Unit", color: "#F59E0B" },
+    video: { bg: "linear-gradient(135deg,#2d1b69,#1a0f3d)", text: "🎬 Video Ad", sub: "Monetag Rewarded Video Ad", color: "#8B5CF6" },
     install: { bg: "linear-gradient(135deg,#151c2d,#0f172a)", text: "📲 Install App", sub: "Download Navi App", color: "#8B5CF6" },
-    rewarded: { bg: "linear-gradient(135deg,#1a3a2a,#0d1f15)", text: "🎁 Rewarded Ad", sub: "AdMob Rewarded", color: "#10B981" },
-    combo: { bg: "linear-gradient(135deg,#3a1a1a,#1f0d0d)", text: "🔥 Combo Ads", sub: "3x AdMob Units", color: "#EF4444" },
+    rewarded: { bg: "linear-gradient(135deg,#1a3a2a,#0d1f15)", text: "🎁 Rewarded Ad", sub: "Monetag Rewarded", color: "#10B981" },
+    combo: { bg: "linear-gradient(135deg,#3a1a1a,#1f0d0d)", text: "🔥 Combo Ads", sub: "3x Monetag Units", color: "#EF4444" },
     quiz: { bg: "linear-gradient(135deg,#3a1a3a,#1f0d1f)", text: "🧠 Quiz Time!", sub: "Complete to Earn", color: "#EC4899" },
   };
 
@@ -1369,7 +1369,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
             </div>
             
             <div className="modal-sub">
-              {task.type === "install" ? "Complete this app install task to earn big coins!" : "Google AdMob Rewarded Video active"}
+              {task.type === "install" ? "Complete this app install task to earn big coins!" : "Monetag High CPM Rewarded Ad active"}
             </div>
 
             {/* Simulated Live Video Player Wrapper */}
@@ -1384,7 +1384,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
               justifyContent: "space-between",
               overflow: "hidden"
             }}>
-              {/* Official AdMob Watermark Banner */}
+              {/* Official Monetag Watermark Banner */}
               <div style={{
                 background: "#f59e0b",
                 color: "#1e1b4b",
@@ -1400,7 +1400,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                 alignItems: "center",
                 gap: "5px"
               }}>
-                📢 GOOGLE ADMOB TEST AD UNIT ACTIVE
+                📢 MONETAG LIVE MULTITAG ACTIVE (ID: 6cdac0672fd8c83041a821ab03d461a1)
               </div>
 
               {task.type === "install" ? (
@@ -1501,7 +1501,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                         Discs Spin: {playableScore || 0}° Booster Active!
                       </div>
                       <p style={{ color: "var(--muted)", fontSize: "10px", textAlign: "center", zIndex: 5, marginTop: "8px", maxWidth: "250px", lineHeight: "1.3" }}>
-                        Google AdMob Interstitial playable unit initialized successfully. Watch timer above to claim premium coins!
+                        Monetag Interactive Playable Ad (Scale: multitag-6cdac0) loaded successfully. Watch timer above to claim premium coins!
                       </p>
 
                       <div style={{ display: "flex", gap: "6px", alignItems: "center", marginTop: "10px", zIndex: 5 }}>
@@ -1543,7 +1543,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                     </button>
                   )}
 
-                  {/* Top-left AdMob Watermark badge */}
+                  {/* Top-left Monetag Watermark badge */}
                   <div style={{
                     position: "absolute",
                     top: 10,
@@ -1560,8 +1560,8 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                     gap: "2px",
                     lineHeight: "1.2"
                   }}>
-                    <span style={{ color: "var(--gold)", fontWeight: "bold" }}>AdMob Rewarded Video Ad</span>
-                    <span>ca-app-pub-3940256099942544/1044960115</span>
+                    <span style={{ color: "var(--gold)", fontWeight: "bold" }}>Monetag Rewarded Video Ad</span>
+                    <span>Zone Tag ID: 6cdac0672fd8c83041a821ab03d461a1</span>
                   </div>
 
                   {/* Bottom Progress Bar overlay */}
@@ -1917,7 +1917,7 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
               overflow: "hidden",
               marginTop: "10px"
             }}>
-              {/* Official AdMob Watermark Banner */}
+              {/* Official Monetag Watermark Banner */}
               <div style={{
                 background: "#f59e0b",
                 color: "#1e1b4b",
@@ -1929,7 +1929,7 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
                 textTransform: "uppercase",
                 fontFamily: "Rajdhani, sans-serif"
               }}>
-                📢 GOOGLE ADMOB TEST AD UNIT ACTIVE
+                📢 MONETAG LIVE MULTITAG ACTIVE (ID: 6cdac0672fd8c83041a821ab03d461a1)
               </div>
 
               {/* Video Player Gameplay container */}
@@ -2019,7 +2019,7 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
                       Discs Spin: {playableScore || 0}° Booster Active!
                     </div>
                     <p style={{ color: "var(--muted)", fontSize: "10px", textAlign: "center", zIndex: 5, marginTop: "8px", maxWidth: "250px", lineHeight: "1.3" }}>
-                      Google AdMob Interstitial playable unit initialized successfully. Watch timer above to claim premium coins!
+                      Monetag Interactive Playable Ad (Scale: multitag-6cdac0) loaded successfully. Watch timer above to claim premium coins!
                     </p>
 
                     <div style={{ display: "flex", gap: "6px", alignItems: "center", marginTop: "10px", zIndex: 5 }}>
@@ -2061,7 +2061,7 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
                   </button>
                 )}
 
-                {/* Top-left AdMob Watermark badge */}
+                {/* Top-left Monetag Watermark badge */}
                 <div style={{
                   position: "absolute",
                   top: 10,
@@ -2078,8 +2078,8 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
                   gap: "2px",
                   lineHeight: "1.2"
                 }}>
-                  <span style={{ color: "var(--gold)", fontWeight: "bold" }}>AdMob Interstitial Reward Unit</span>
-                  <span>ca-app-pub-3940256099942544/1044960115</span>
+                  <span style={{ color: "var(--gold)", fontWeight: "bold" }}>Monetag Interstitial Award Unit</span>
+                  <span>Zone Tag ID: 6cdac0672fd8c83041a821ab03d461a1</span>
                 </div>
 
                 {/* Progress bar */}
@@ -2099,7 +2099,7 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
                 fontSize: "10px",
                 color: "#94A3B8"
               }}>
-                <span>🟢 Connected to AdMob Test ID</span>
+                <span>🟢 Connected to Monetag SDK</span>
                 <span style={{ color: "var(--gold)", fontWeight: "600" }}>Reward Tier: +25 Coins</span>
               </div>
             </div>
@@ -2749,7 +2749,7 @@ function HomePage({ coins, setCoins, showToast, adsWatched, setAdsWatched, check
               <div className="task-title">{task.title}</div>
               <div className="task-meta">
                 <div className="task-time">⏱ {task.time}</div>
-                <div className="chip">{task.type === "captcha" ? "Puzzle" : "AdMob"}</div>
+                <div className="chip">{task.type === "captcha" ? "Puzzle" : "Monetag"}</div>
               </div>
             </div>
             <div className="task-reward">
