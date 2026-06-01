@@ -1268,7 +1268,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
 
   useEffect(() => {
     // Dynamically log AdMob initialization and tracking
-    console.log("AdMob SDK Initialized successfully. Ad Unit ID: ca-app-pub-3940256099942544/5224354917");
+    console.log("AdMob SDK Initialized successfully. App ID: ca-app-pub-1741947856013956~9733783734, Ad Unit ID: ca-app-pub-1741947856013956/8677898539");
   }, []);
 
   useEffect(() => {
@@ -1582,7 +1582,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                 alignItems: "center",
                 gap: "5px"
               }}>
-                📢 GOOGLE ADMOB TEST AD ACTIVE (ID: ca-app-pub-3940256099942544/5224354917)
+                📢 GOOGLE ADMOB AD ACTIVE (APP ID: ca-app-pub-1741947856013956~9733783734 | UNIT ID: ca-app-pub-1741947856013956/8677898539)
               </div>
 
               <div style={{ flex: 1, position: "relative", width: "100%", height: "100%", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -1671,7 +1671,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                       Discs Spin: {playableScore || 0}° Booster Active!
                     </div>
                     <p style={{ color: "var(--muted)", fontSize: "10px", textAlign: "center", zIndex: 5, marginTop: "8px", maxWidth: "250px", lineHeight: "1.3" }}>
-                      Google AdMob Responsive Playable Ad (Unit ID: ca-app-pub-3940256099942544/5224354917) loaded successfully. Watch timer above to claim premium coins!
+                      Google AdMob Responsive Playable Ad (Unit ID: ca-app-pub-1741947856013956/8677898539) loaded successfully. Watch timer above to claim premium coins!
                     </p>
 
                     <div style={{ display: "flex", gap: "6px", alignItems: "center", marginTop: "10px", zIndex: 5 }}>
@@ -1731,7 +1731,8 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                   lineHeight: "1.2"
                 }}>
                   <span style={{ color: "var(--gold)", fontWeight: "bold" }}>Google AdMob Rewarded Video</span>
-                  <span>Unit ID: ca-app-pub-3940256099942544/5224354917</span>
+                  <span>App ID: ca-app-pub-1741947856013956~9733783734</span>
+                  <span>Unit ID: ca-app-pub-1741947856013956/8677898539</span>
                 </div>
 
                 {/* Bottom Progress Bar overlay */}
@@ -1920,7 +1921,7 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
 
   useEffect(() => {
     if (step === "watching_ad") {
-      console.log("AdMob SDK Interstitial Loaded successfully for Captcha reward verifying. Ad Unit: ca-app-pub-3940256099942544/5224354917");
+      console.log("AdMob SDK Interstitial Loaded successfully for Captcha reward verifying. App ID: ca-app-pub-1741947856013956~9733783734, Ad Unit: ca-app-pub-1741947856013956/8677898539");
     }
   }, [step]);
 
@@ -2069,7 +2070,7 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
                 textTransform: "uppercase",
                 fontFamily: "Rajdhani, sans-serif"
               }}>
-                📢 GOOGLE ADMOB TEST AD ACTIVE (ID: ca-app-pub-3940256099942544/5224354917)
+                📢 GOOGLE ADMOB AD ACTIVE (APP ID: ca-app-pub-1741947856013956~9733783734 | UNIT ID: ca-app-pub-1741947856013956/8677898539)
               </div>
 
               {/* Video Player Gameplay container */}
@@ -2159,7 +2160,7 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
                       Discs Spin: {playableScore || 0}° Booster Active!
                     </div>
                     <p style={{ color: "var(--muted)", fontSize: "10px", textAlign: "center", zIndex: 5, marginTop: "8px", maxWidth: "250px", lineHeight: "1.3" }}>
-                      Google AdMob Responsive Playable Ad (Unit ID: ca-app-pub-3940256099942544/5224354917) loaded successfully. Watch timer above to claim premium coins!
+                      Google AdMob Responsive Playable Ad (Unit ID: ca-app-pub-1741947856013956/8677898539) loaded successfully. Watch timer above to claim premium coins!
                     </p>
 
                     <div style={{ display: "flex", gap: "6px", alignItems: "center", marginTop: "10px", zIndex: 5 }}>
@@ -2219,7 +2220,8 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
                   lineHeight: "1.2"
                 }}>
                   <span style={{ color: "var(--gold)", fontWeight: "bold" }}>Google AdMob Interstitial Ad</span>
-                  <span>Unit ID: ca-app-pub-3940256099942544/5224354917</span>
+                  <span>App ID: ca-app-pub-1741947856013956~9733783734</span>
+                  <span>Unit ID: ca-app-pub-1741947856013956/8677898539</span>
                 </div>
 
                 {/* Progress bar */}
