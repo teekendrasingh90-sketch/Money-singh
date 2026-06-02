@@ -1,0 +1,1133 @@
+<!DOCTYPE html><!--5wqdTIcECfeQGHTgIKK8r--><html lang="en"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/_next/static/css/8b13234ab211e344.css" data-precedence="next"/><link rel="preload" as="script" fetchPriority="low" href="/_next/static/chunks/webpack-4e6bf084ac60582b.js"/><script src="/_next/static/chunks/4bd1b696-c023c6e3521b1417.js" async=""></script><script src="/_next/static/chunks/255-eb4aecc3ff015961.js" async=""></script><script src="/_next/static/chunks/main-app-5ddb3cb0b61e0850.js" async=""></script><script src="/_next/static/chunks/app/page-b573a9ff44b6eb5d.js" async=""></script><title>AdMob Cash Earn - Play and Earn Coins</title><meta name="description" content="Watch Ads, Claim Rewards and Withdraw Coins securely with Google AdMob Reward system."/><script src="/_next/static/chunks/polyfills-42372ed130431b0a.js" noModule=""></script></head><body><div hidden=""><!--$--><!--/$--></div><style>
+  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #080C14;
+    --surface: #0F1623;
+    --card: #141D2B;
+    --card2: #1A2535;
+    --border: rgba(255,255,255,0.07);
+    --gold: #F59E0B;
+    --gold-light: #FCD34D;
+    --gold-dark: #D97706;
+    --cyan: #06B6D4;
+    --green: #10B981;
+    --red: #EF4444;
+    --purple: #8B5CF6;
+    --text: #F1F5F9;
+    --muted: #64748B;
+    --muted2: #94A3B8;
+  }
+
+  body {
+    background: var(--bg);
+    font-family: 'Exo 2', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .app {
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── Noise overlay ── */
+  .app::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* ── Header ── */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(8,12,20,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .header-logo {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #F59E0B, #FCD34D, #F59E0B);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 1px;
+  }
+
+  .header-logo span {
+    color: var(--cyan);
+    -webkit-text-fill-color: var(--cyan);
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .notif-btn {
+    width: 36px; height: 36px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .notif-dot {
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 8px; height: 8px;
+    background: var(--red);
+    border-radius: 50%;
+    border: 2px solid var(--bg);
+  }
+
+  .avatar-btn {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+  }
+
+  /* ── Page content ── */
+  .page {
+    padding: 0 0 90px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Hero Balance Card ── */
+  .hero-card {
+    margin: 16px;
+    background: linear-gradient(135deg, #1A2535 0%, #0F1A2A 50%, #1A2535 100%);
+    border: 1px solid rgba(245,158,11,0.25);
+    border-radius: 24px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-card::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(245,158,11,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .hero-card::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: -40px;
+    width: 150px; height: 150px;
+    background: radial-gradient(circle, rgba(6,182,212,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .balance-label {
+    font-size: 12px;
+    color: var(--muted2);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .balance-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .coin-icon-big {
+    font-size: 32px;
+    line-height: 1;
+  }
+
+  .balance-amount {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 44px;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+
+  .balance-unit {
+    font-size: 14px;
+    color: var(--muted2);
+    margin-bottom: 6px;
+  }
+
+  .balance-inr {
+    font-size: 14px;
+    color: var(--muted2);
+    margin-bottom: 20px;
+  }
+
+  .balance-inr strong {
+    color: var(--green);
+    font-size: 16px;
+  }
+
+  .hero-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+
+  .hero-stat {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .hero-stat-val {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gold);
+  }
+
+  .hero-stat-lbl {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── Section ── */
+  .section {
+    padding: 0 16px;
+    margin-top: 20px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .section-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.5px;
+  }
+
+  .section-badge {
+    font-size: 11px;
+    background: rgba(245,158,11,0.15);
+    color: var(--gold);
+    border: 1px solid rgba(245,158,11,0.3);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-weight: 600;
+  }
+
+  /* ── Quick Actions ── */
+  .quick-actions {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    padding: 0 16px;
+    margin-top: 20px;
+  }
+
+  .quick-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .quick-btn:hover { transform: translateY(-2px); border-color: rgba(245,158,11,0.4); }
+  .quick-btn:active { transform: scale(0.96); }
+
+  .quick-icon {
+    font-size: 24px;
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 12px;
+  }
+
+  .quick-label {
+    font-size: 10px;
+    color: var(--muted2);
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  /* ── Task Cards ── */
+  .task-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .task-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    border-radius: 0 2px 2px 0;
+  }
+
+  .task-card:hover { transform: translateX(4px); border-color: rgba(255,255,255,0.12); }
+  .task-card:active { transform: scale(0.98); }
+
+  .task-icon-wrap {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  .task-info { flex: 1; }
+
+  .task-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .task-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .task-time {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .task-reward {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+
+  .task-coins {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .earn-btn {
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Exo 2', sans-serif;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── Daily Checkin ── */
+  .checkin-strip {
+    background: var(--card);
+    border: 1px solid rgba(16,185,129,0.3);
+    border-radius: 18px;
+    padding: 16px;
+    margin: 0 16px 10px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+  }
+
+  .checkin-icon {
+    width: 52px; height: 52px;
+    background: rgba(16,185,129,0.15);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+  }
+
+  .checkin-streak {
+    flex: 1;
+  }
+
+  .checkin-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--green);
+  }
+
+  .checkin-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .streak-dots {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .streak-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--card2);
+    border: 1px solid var(--border);
+  }
+
+  .streak-dot.done { background: var(--green); border-color: var(--green); }
+  .streak-dot.today { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 8px var(--gold); }
+
+  .checkin-reward {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--green);
+  }
+
+  /* ── Spin Wheel ── */
+  .spin-card {
+    background: linear-gradient(135deg, #1A1040, #0F1623);
+    border: 1px solid rgba(139,92,246,0.3);
+    border-radius: 18px;
+    padding: 18px;
+    margin: 0 16px 10px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+  }
+
+  .spin-wheel-mini {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: conic-gradient(#F59E0B 0deg 60deg, #8B5CF6 60deg 120deg, #10B981 120deg 180deg, #06B6D4 180deg 240deg, #EF4444 240deg 300deg, #EC4899 300deg 360deg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    animation: spinSlow 6s linear infinite;
+  }
+
+  @keyframes spinSlow { to { transform: rotate(360deg); } }
+
+  /* ── Progress Bar ── */
+  .progress-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 16px;
+    margin: 0 16px 10px;
+  }
+
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 13px;
+  }
+
+  .progress-title { font-weight: 600; color: var(--text); }
+  .progress-val { color: var(--gold); font-weight: 700; font-family: 'Rajdhani', sans-serif; }
+
+  .progress-bar {
+    height: 8px;
+    background: var(--card2);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 10px;
+    background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-light));
+    transition: width 0.6s ease;
+    position: relative;
+  }
+
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    right: -1px; top: 0; bottom: 0;
+    width: 10px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 50%;
+    filter: blur(4px);
+  }
+
+  .progress-sub { font-size: 11px; color: var(--muted); }
+
+  /* ── Ad Modal ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid rgba(245,158,11,0.3);
+    border-radius: 24px;
+    padding: 28px;
+    width: 100%;
+    max-width: 380px;
+    position: relative;
+    animation: modalIn 0.3s ease;
+  }
+
+  @keyframes modalIn {
+    from { transform: scale(0.9) translateY(20px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+  }
+
+  .modal-icon { font-size: 48px; text-align: center; margin-bottom: 16px; }
+  .modal-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .modal-sub { font-size: 14px; color: var(--muted2); text-align: center; margin-bottom: 24px; }
+
+  .ad-screen {
+    background: var(--bg);
+    border-radius: 16px;
+    aspect-ratio: 16/9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .ad-placeholder {
+    text-align: center;
+    padding: 20px;
+  }
+
+  .ad-placeholder p { color: var(--muted); font-size: 13px; margin-top: 8px; }
+
+  .ad-admob-tag {
+    position: absolute;
+    top: 8px; right: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 10px;
+    color: var(--muted2);
+  }
+
+  .timer-ring {
+    position: relative;
+    display: inline-block;
+    margin: 0 auto 20px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .timer-number {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--gold);
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 16px; right: 16px;
+    width: 30px; height: 30px;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--muted2);
+  }
+
+  /* ── Success Toast ── */
+  .toast {
+    position: fixed;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--green), #059669);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 14px;
+    z-index: 300;
+    animation: toastIn 0.3s ease, toastOut 0.3s ease 2s forwards;
+    white-space: nowrap;
+    box-shadow: 0 8px 32px rgba(16,185,129,0.4);
+  }
+
+  @keyframes toastIn {
+    from { opacity: 0; top: 50px; }
+    to { opacity: 1; top: 70px; }
+  }
+
+  @keyframes toastOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+
+  /* ── Wallet Page ── */
+  .wallet-hero {
+    margin: 16px;
+    background: linear-gradient(135deg, #0A1628, #1A2535);
+    border: 1px solid rgba(6,182,212,0.25);
+    border-radius: 24px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .wallet-hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 240px; height: 240px;
+    background: radial-gradient(circle, rgba(6,182,212,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .withdraw-btn-main {
+    width: 100%;
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    color: #000;
+    border: none;
+    border-radius: 16px;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Exo 2', sans-serif;
+    letter-spacing: 0.5px;
+    margin-top: 16px;
+    transition: all 0.2s;
+  }
+
+  .withdraw-btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245,158,11,0.3); }
+  .withdraw-btn-main:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .txn-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .txn-icon {
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .txn-info { flex: 1; }
+  .txn-title { font-size: 14px; font-weight: 600; }
+  .txn-time { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .txn-amount {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  /* ── Withdraw Modal ── */
+  .input-field {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: var(--text);
+    font-size: 16px;
+    font-family: 'Exo 2', sans-serif;
+    outline: none;
+    margin-bottom: 12px;
+    transition: border-color 0.2s;
+  }
+
+  .input-field:focus { border-color: var(--gold); }
+
+  .input-label {
+    font-size: 12px;
+    color: var(--muted2);
+    margin-bottom: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .payment-methods {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .pay-method {
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 13px;
+    color: var(--muted2);
+    font-weight: 600;
+  }
+
+  .pay-method.active { border-color: var(--gold); color: var(--gold); background: rgba(245,158,11,0.08); }
+  .pay-method-icon { font-size: 22px; margin-bottom: 4px; }
+
+  /* ── Profile Page ── */
+  .profile-hero {
+    background: linear-gradient(160deg, #1A2535 0%, #0F1623 100%);
+    margin: 16px;
+    border-radius: 24px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    text-align: center;
+    position: relative;
+  }
+
+  .profile-avatar {
+    width: 80px; height: 80px;
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 14px;
+    border: 3px solid rgba(245,158,11,0.4);
+    box-shadow: 0 0 30px rgba(245,158,11,0.2);
+  }
+
+  .profile-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .profile-level {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(245,158,11,0.12);
+    border: 1px solid rgba(245,158,11,0.3);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 12px;
+    color: var(--gold);
+    font-weight: 700;
+    margin-top: 8px;
+  }
+
+  .profile-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  .profile-stat {
+    background: rgba(255,255,255,0.04);
+    border-radius: 12px;
+    padding: 12px 8px;
+    text-align: center;
+  }
+
+  .profile-stat-val {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--gold);
+  }
+
+  .profile-stat-lbl {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .menu-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .menu-item:hover { border-color: rgba(255,255,255,0.15); }
+
+  .menu-icon {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+
+  .menu-label {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .menu-arrow { color: var(--muted); font-size: 16px; }
+
+  /* ── Referral Card ── */
+  .referral-card {
+    margin: 0 16px 10px;
+    background: linear-gradient(135deg, #1A1040, #0F1623);
+    border: 1px solid rgba(139,92,246,0.3);
+    border-radius: 18px;
+    padding: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .referral-card::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 120px; height: 120px;
+    background: radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .ref-code-box {
+    background: var(--bg);
+    border: 1px dashed rgba(139,92,246,0.4);
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--purple);
+    letter-spacing: 4px;
+    text-align: center;
+    margin-top: 12px;
+  }
+
+  /* ── Leaderboard ── */
+  .leaderboard-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    transition: all 0.2s;
+  }
+
+  .leaderboard-item.you {
+    border-color: rgba(245,158,11,0.4);
+    background: rgba(245,158,11,0.06);
+  }
+
+  .rank-badge {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  .lb-avatar {
+    width: 40px; height: 40px;
+    background: var(--card2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+
+  .lb-name { flex: 1; font-size: 14px; font-weight: 600; }
+  .lb-coins { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; color: var(--gold); }
+
+  /* ── Bottom Nav ── */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 430px;
+    background: rgba(15,22,35,0.97);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 8px 0 12px;
+    z-index: 100;
+  }
+
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    padding: 4px 0;
+    transition: all 0.2s;
+  }
+
+  .nav-icon {
+    font-size: 22px;
+    transition: transform 0.2s;
+  }
+
+  .nav-item.active .nav-icon { transform: scale(1.2); }
+
+  .nav-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+  }
+
+  .nav-item.active .nav-label { color: var(--gold); }
+
+  .nav-earn-btn {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    margin-top: -10px;
+    box-shadow: 0 4px 20px rgba(245,158,11,0.4);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid var(--bg);
+  }
+
+  .nav-earn-btn:hover { transform: scale(1.08); }
+  .nav-earn-btn:active { transform: scale(0.95); }
+
+  /* ── Coins animation ── */
+  @keyframes coinFloat {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-60px) scale(1.5); }
+  }
+
+  .coin-float {
+    position: fixed;
+    font-size: 24px;
+    pointer-events: none;
+    z-index: 500;
+    animation: coinFloat 1s ease forwards;
+  }
+
+  /* ── SVG Ring ── */
+  .svg-ring {
+    transform: rotate(-90deg);
+  }
+
+  .ring-track { fill: none; stroke: #1A2535; stroke-width: 6; }
+  .ring-fill { fill: none; stroke: var(--gold); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
+
+  /* ── Chip tags ── */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 11px;
+    color: var(--muted2);
+  }
+
+  /* ── Scroll hide ── */
+  ::-webkit-scrollbar { display: none; }
+
+  /* ── Captcha Styles ── */
+  .captcha-box {
+    background: repeating-linear-gradient(
+      45deg,
+      #131924,
+      #131924 10px,
+      #1a2436 10px,
+      #1a2436 20px
+    );
+    border: 1px dashed var(--border);
+    padding: 20px;
+    border-radius: 12px;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 6px;
+    color: var(--gold-light);
+    font-family: "Courier New", Courier, monospace;
+    text-shadow: 2px 2px 0px rgba(0,0,0,0.5);
+    user-select: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .captcha-box::before {
+    content: "RELIABLE VERIFICATION";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-12deg);
+    font-size: 10px;
+    opacity: 0.12;
+    color: #fff;
+    white-space: nowrap;
+    letter-spacing: 1px;
+  }
+  .captcha-noise-line {
+    position: absolute;
+    width: 140%;
+    height: 2px;
+    background: rgba(255,255,255,0.18);
+    transform: rotate(15deg);
+  }
+
+  /* ── Interactive Spin Wheel Styles ── */
+  .spin-container-full {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  .wheel-outer {
+    position: relative;
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    border: 8px solid #1f2d45;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6), 0 0 0 4px var(--gold);
+    overflow: hidden;
+  }
+  .wheel-svg {
+    width: 100%;
+    height: 100%;
+    transition: transform 4s cubic-bezier(0.15, 0.85, 0.2, 1);
+    transform-origin: center center;
+  }
+  .wheel-pointer {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-top: 25px solid var(--gold);
+    z-index: 10;
+    filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5));
+  }
+  .wheel-center-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    background: var(--surface);
+    border: 3px solid var(--gold);
+    border-radius: 50%;
+    z-index: 5;
+    box-shadow: inset 0px 2px 5px rgba(0,0,0,0.5), 0px 4px 10px rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #fff;
+    cursor: pointer;
+  }
+</style><div class="app"><div class="header"><div class="header-logo">Mon<span>ey</span></div><div class="header-right"><div class="avatar-btn" style="cursor:pointer">👤</div></div></div><div class="page"><div class="hero-card"><div class="balance-label">💰 Total Coins</div><div class="balance-row"><div class="coin-icon-big">🪙</div><div class="balance-amount">1,250</div><div class="balance-unit">coins</div></div><div class="balance-inr">≈ <strong>₹<!-- -->1.50</strong>  ·  1 coin = ₹<!-- -->0.0012</div><div class="hero-stats"><div class="hero-stat"><div class="hero-stat-val">0</div><div class="hero-stat-lbl">Ads Today</div></div><div class="hero-stat"><div class="hero-stat-val">₹<!-- -->1</div><div class="hero-stat-lbl">Earned</div></div><div class="hero-stat"><div class="hero-stat-val">165417<!-- -->c</div><div class="hero-stat-lbl">To Withdraw</div></div></div></div><div class="daily-notify-banner animate-pulse" style="background:linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(139, 92, 246, 0.25));border:1.5px solid rgba(139, 92, 246, 0.4);border-radius:16px;padding:16px;margin:14px 16px 4px 16px;display:flex;justify-content:space-between;align-items:center"><div style="flex:1;margin-right:12px"><div style="display:flex;align-items:center;gap:8px;font-weight:700;color:var(--cyan);font-family:Rajdhani, sans-serif;font-size:15px;letter-spacing:0.5px">📢 24H REWARD NOTIFICATION!</div><div style="font-size:12px;color:var(--muted);margin-top:4px">Aaj ka free reward claim karein! <strong>100 Coins</strong> available hain.</div></div><button class="earn-btn" style="background:linear-gradient(135deg, var(--cyan), #0891b2);padding:10px 14px;flex-shrink:0">CLAIM</button></div><div style="padding:0 16px;margin-top:4px;margin-bottom:4px"><div class="section-title" style="margin-bottom:10px;margin-top:4px">⚡ Quick Actions</div></div><div class="quick-actions"><div class="quick-btn"><div class="quick-icon" style="background:rgba(245,158,11,0.12)">📢</div><div class="quick-label">Watch Ad</div></div><div class="quick-btn"><div class="quick-icon" style="background:rgba(139,92,246,0.12)">🎬</div><div class="quick-label">Video Ad</div></div><div class="quick-btn"><div class="quick-icon" style="background:rgba(16,185,129,0.12)">🛡️</div><div class="quick-label">Captcha</div></div><div class="quick-btn"><div class="quick-icon" style="background:rgba(236,72,153,0.12)">🎰</div><div class="quick-label">Spin</div></div></div><div class="section" style="margin-top:16px"><div class="section-header"><div class="section-title">📅 Daily Bonus</div></div></div><div class="checkin-strip" style="opacity:1"><div class="checkin-icon">🎯</div><div class="checkin-streak"><div class="checkin-title">Daily Check-in</div><div class="checkin-sub">Streak: 3 days 🔥</div><div class="streak-dots"><div class="streak-dot done"></div><div class="streak-dot done"></div><div class="streak-dot done"></div><div class="streak-dot today"></div><div class="streak-dot "></div><div class="streak-dot "></div><div class="streak-dot "></div></div></div><div class="checkin-reward">+<!-- -->10<!-- --> 🪙</div></div><div class="progress-wrap"><div class="progress-header"><span class="progress-title">📊 Daily Progress</span><span class="progress-val">0<!-- -->/<!-- -->100<!-- --> coins</span></div><div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div><div class="progress-sub">Watch more ads to hit your daily goal!</div></div><div class="spin-card"><div class="spin-wheel-mini">🎰</div><div style="flex:1"><div style="font-size:15px;font-weight:700;color:#8B5CF6">Lucky Spin</div><div style="font-size:12px;color:var(--muted);margin-top:3px">Win up to 100 coins!</div></div><button class="earn-btn" style="background:linear-gradient(135deg,#8B5CF6,#7C3AED);color:#fff">SPIN</button></div><div class="section"><div class="section-header"><div class="section-title">🎯 Earn Tasks</div><div class="section-badge">5<!-- --> Available</div></div><div class="task-card" style="--accent:#F59E0B"><div class="task-card" style="position:absolute;left:0;top:0;bottom:0;width:3px;background:#F59E0B;border-radius:18px 0 0 18px;margin:0;padding:0;border:none;display:block"></div><div class="task-icon-wrap" style="background:#F59E0B20">📢</div><div class="task-info"><div class="task-title">Watch Banner Ad</div><div class="task-meta"><div class="task-time">⏱ <!-- -->5 sec</div><div class="chip">AdMob</div></div></div><div class="task-reward"><div class="task-coins" style="color:#F59E0B">🪙 +<!-- -->5</div><button class="earn-btn" style="background:linear-gradient(135deg,#F59E0B,#F59E0Bcc)">EARN</button></div></div><div class="task-card" style="--accent:#8B5CF6"><div class="task-card" style="position:absolute;left:0;top:0;bottom:0;width:3px;background:#8B5CF6;border-radius:18px 0 0 18px;margin:0;padding:0;border:none;display:block"></div><div class="task-icon-wrap" style="background:#8B5CF620">📲</div><div class="task-info"><div class="task-title">Install Navi App</div><div class="task-meta"><div class="task-time">⏱ <!-- -->Instant</div><div class="chip">AdMob</div></div></div><div class="task-reward"><div class="task-coins" style="color:#8B5CF6">🪙 +<!-- -->250</div><button class="earn-btn" style="background:linear-gradient(135deg,#8B5CF6,#8B5CF6cc)">EARN</button></div></div><div class="task-card" style="--accent:#06B6D4"><div class="task-card" style="position:absolute;left:0;top:0;bottom:0;width:3px;background:#06B6D4;border-radius:18px 0 0 18px;margin:0;padding:0;border:none;display:block"></div><div class="task-icon-wrap" style="background:#06B6D420">📱</div><div class="task-info"><div class="task-title">Interstitial Ad</div><div class="task-meta"><div class="task-time">⏱ <!-- -->15 sec</div><div class="chip">AdMob</div></div></div><div class="task-reward"><div class="task-coins" style="color:#06B6D4">🪙 +<!-- -->15</div><button class="earn-btn" style="background:linear-gradient(135deg,#06B6D4,#06B6D4cc)">EARN</button></div></div><div class="task-card" style="--accent:#10B981"><div class="task-card" style="position:absolute;left:0;top:0;bottom:0;width:3px;background:#10B981;border-radius:18px 0 0 18px;margin:0;padding:0;border:none;display:block"></div><div class="task-icon-wrap" style="background:#10B98120">🛡️</div><div class="task-info"><div class="task-title">Captcha Solver</div><div class="task-meta"><div class="task-time">⏱ <!-- -->Instant</div><div class="chip">Puzzle</div></div></div><div class="task-reward"><div class="task-coins" style="color:#10B981">🪙 +<!-- -->25</div><button class="earn-btn" style="background:linear-gradient(135deg,#10B981,#10B981cc)">EARN</button></div></div><div class="task-card" style="--accent:#EF4444"><div class="task-card" style="position:absolute;left:0;top:0;bottom:0;width:3px;background:#EF4444;border-radius:18px 0 0 18px;margin:0;padding:0;border:none;display:block"></div><div class="task-icon-wrap" style="background:#EF444420">🔥</div><div class="task-info"><div class="task-title">Watch 3 Ads Combo</div><div class="task-meta"><div class="task-time">⏱ <!-- -->45 sec</div><div class="chip">AdMob</div></div></div><div class="task-reward"><div class="task-coins" style="color:#EF4444">🪙 +<!-- -->70</div><button class="earn-btn" style="background:linear-gradient(135deg,#EF4444,#EF4444cc)">EARN</button></div></div></div></div><div class="bottom-nav"><div class="nav-item "><div class="nav-icon">💳</div><div class="nav-label">Wallet</div></div><div style="flex:1;display:flex;justify-content:center"><div class="nav-earn-btn">🪙</div></div><div class="nav-item "><div class="nav-icon">🏆</div><div class="nav-label">Ranks</div></div></div></div><!--$--><!--/$--><script src="/_next/static/chunks/webpack-4e6bf084ac60582b.js" id="_R_" async=""></script><script>(self.__next_f=self.__next_f||[]).push([0])</script><script>self.__next_f.push([1,"1:\"$Sreact.fragment\"\n2:I[9766,[],\"\"]\n3:I[8924,[],\"\"]\n4:I[1959,[],\"ClientPageRoot\"]\n5:I[9547,[\"974\",\"static/chunks/app/page-b573a9ff44b6eb5d.js\"],\"default\"]\n8:I[4431,[],\"OutletBoundary\"]\na:I[5278,[],\"AsyncMetadataOutlet\"]\nc:I[4431,[],\"ViewportBoundary\"]\ne:I[4431,[],\"MetadataBoundary\"]\nf:\"$Sreact.suspense\"\n11:I[7150,[],\"\"]\n:HL[\"/_next/static/css/8b13234ab211e344.css\",\"style\"]\n"])</script><script>self.__next_f.push([1,"0:{\"P\":null,\"b\":\"5wqdTIcECfeQGHTgIKK8r\",\"p\":\"\",\"c\":[\"\",\"\"],\"i\":false,\"f\":[[[\"\",{\"children\":[\"__PAGE__\",{}]},\"$undefined\",\"$undefined\",true],[\"\",[\"$\",\"$1\",\"c\",{\"children\":[[[\"$\",\"link\",\"0\",{\"rel\":\"stylesheet\",\"href\":\"/_next/static/css/8b13234ab211e344.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\",\"nonce\":\"$undefined\"}]],[\"$\",\"html\",null,{\"lang\":\"en\",\"children\":[[\"$\",\"head\",null,{\"children\":[\"$\",\"meta\",null,{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1.0\"}]}],[\"$\",\"body\",null,{\"children\":[\"$\",\"$L2\",null,{\"parallelRouterKey\":\"children\",\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L3\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[[\"$\",\"title\",null,{\"children\":\"404: This page could not be found.\"}],[\"$\",\"div\",null,{\"style\":{\"fontFamily\":\"system-ui,\\\"Segoe UI\\\",Roboto,Helvetica,Arial,sans-serif,\\\"Apple Color Emoji\\\",\\\"Segoe UI Emoji\\\"\",\"height\":\"100vh\",\"textAlign\":\"center\",\"display\":\"flex\",\"flexDirection\":\"column\",\"alignItems\":\"center\",\"justifyContent\":\"center\"},\"children\":[\"$\",\"div\",null,{\"children\":[[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\"}}],[\"$\",\"h1\",null,{\"className\":\"next-error-h1\",\"style\":{\"display\":\"inline-block\",\"margin\":\"0 20px 0 0\",\"padding\":\"0 23px 0 0\",\"fontSize\":24,\"fontWeight\":500,\"verticalAlign\":\"top\",\"lineHeight\":\"49px\"},\"children\":404}],[\"$\",\"div\",null,{\"style\":{\"display\":\"inline-block\"},\"children\":[\"$\",\"h2\",null,{\"style\":{\"fontSize\":14,\"fontWeight\":400,\"lineHeight\":\"49px\",\"margin\":0},\"children\":\"This page could not be found.\"}]}]]}]}]],[]],\"forbidden\":\"$undefined\",\"unauthorized\":\"$undefined\"}]}]]}]]}],{\"children\":[\"__PAGE__\",[\"$\",\"$1\",\"c\",{\"children\":[[\"$\",\"$L4\",null,{\"Component\":\"$5\",\"searchParams\":{},\"params\":{},\"promises\":[\"$@6\",\"$@7\"]}],null,[\"$\",\"$L8\",null,{\"children\":[\"$L9\",[\"$\",\"$La\",null,{\"promise\":\"$@b\"}]]}]]}],{},null,false]},null,false],[\"$\",\"$1\",\"h\",{\"children\":[null,[[\"$\",\"$Lc\",null,{\"children\":\"$Ld\"}],null],[\"$\",\"$Le\",null,{\"children\":[\"$\",\"div\",null,{\"hidden\":true,\"children\":[\"$\",\"$f\",null,{\"fallback\":null,\"children\":\"$L10\"}]}]}]]}],false]],\"m\":\"$undefined\",\"G\":[\"$11\",[]],\"s\":false,\"S\":true}\n"])</script><script>self.__next_f.push([1,"6:{}\n7:\"$0:f:0:1:2:children:1:props:children:0:props:params\"\n"])</script><script>self.__next_f.push([1,"d:[[\"$\",\"meta\",\"0\",{\"charSet\":\"utf-8\"}],[\"$\",\"meta\",\"1\",{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1\"}]]\n9:null\n"])</script><script>self.__next_f.push([1,"b:{\"metadata\":[[\"$\",\"title\",\"0\",{\"children\":\"AdMob Cash Earn - Play and Earn Coins\"}],[\"$\",\"meta\",\"1\",{\"name\":\"description\",\"content\":\"Watch Ads, Claim Rewards and Withdraw Coins securely with Google AdMob Reward system.\"}]],\"error\":null,\"digest\":\"$undefined\"}\n"])</script><script>self.__next_f.push([1,"10:\"$b:metadata\"\n"])</script></body></html>

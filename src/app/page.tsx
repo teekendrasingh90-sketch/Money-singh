@@ -2685,11 +2685,608 @@ interface HomePageProps {
   setTxns: React.Dispatch<React.SetStateAction<Transaction[]>>;
 }
 
+// ─── Unity Interstitial Ad ───────────────────────────────────────────────────
+interface UnityInterstitialAdProps {
+  amount: number;
+  onClose: () => void;
+  onComplete: (amount: number) => void;
+  title: string;
+}
+
+const VIDEO_ADS_COLLECTION = [
+  {
+    url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    title: "Clash of Strategy: Ultimate Kingdom Warfare",
+    dev: "SuperGames Global",
+    icon: "🏰",
+    category: "Strategy"
+  },
+  {
+    url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+    title: "Subway Run Adventure Match 3D",
+    dev: "Infinite Action Studios",
+    icon: "🏃",
+    category: "Action / Arcade"
+  },
+  {
+    url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+    title: "Royal Match Puzzle: Coins Master",
+    dev: "King Casual Co.",
+    icon: "👑",
+    category: "Casual / Puzzle"
+  },
+  {
+    url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+    title: "Asphalt Stunt Racing: Overdrive X",
+    dev: "Nitro Speed Gaming",
+    icon: "🏎️",
+    category: "Racing"
+  },
+  {
+    url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+    title: "Cyber Defense: Zombie Survival Strike",
+    dev: "SciFi Apocalypse, Inc.",
+    icon: "🤖",
+    category: "RPG / Action"
+  }
+];
+
+function UnityInterstitialAd({ amount, onClose, onComplete, title }: UnityInterstitialAdProps) {
+  const [initPhase, setInitPhase] = useState<"loading" | "ready">("loading");
+  const [currentAd, setCurrentAd] = useState<typeof VIDEO_ADS_COLLECTION[0] | null>(null);
+  const [elapsed, setElapsed] = useState(0);
+  const [duration, setDuration] = useState(15);
+  const [isMuted, setIsMuted] = useState(true); // default true for autoplay bypass
+  const [installState, setInstallState] = useState<"idle" | "downloading" | "installed">("idle");
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [videoPlaying, setVideoPlaying] = useState(false);
+  const [videoError, setVideoError] = useState(false);
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const timerLimit = 15; // 15 seconds Unity Ad standard limit
+
+  useEffect(() => {
+    // Select random video ad from our collection of high quality mobile game advertisements
+    const randomIndex = Math.floor(Math.random() * VIDEO_ADS_COLLECTION.length);
+    setCurrentAd(VIDEO_ADS_COLLECTION[randomIndex]);
+
+    console.log("Unity Ads SDK Version 4.12.0 Initializing. Game ID: 800002331");
+    const loadTimeout = setTimeout(() => {
+      setInitPhase("ready");
+      console.log("Unity Ads Video Placement Cached & Prepared: Interstitial_Android");
+    }, 1500);
+
+    return () => clearTimeout(loadTimeout);
+  }, []);
+
+  // Countdown intervals
+  useEffect(() => {
+    if (initPhase !== "ready") return;
+
+    const interval = setInterval(() => {
+      setElapsed((prev) => {
+        if (prev + 1 >= timerLimit) {
+          clearInterval(interval);
+          return timerLimit;
+        }
+        return prev + 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [initPhase]);
+
+  // Attempt to play on ready stage
+  useEffect(() => {
+    if (initPhase === "ready" && videoRef.current) {
+      videoRef.current.play()
+        .then(() => {
+          setVideoPlaying(true);
+        })
+        .catch((err) => {
+          console.log("Auto-play blocked or delayed: ", err);
+          setVideoPlaying(false);
+        });
+    }
+  }, [initPhase, currentAd]);
+
+  const handleMuteToggle = () => {
+    if (videoRef.current) {
+      const nextMute = !isMuted;
+      videoRef.current.muted = nextMute;
+      setIsMuted(nextMute);
+    }
+  };
+
+  const startInstallSequence = () => {
+    if (installState !== "idle") return;
+    setInstallState("downloading");
+    setDownloadProgress(0);
+
+    const intv = setInterval(() => {
+      setDownloadProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(intv);
+          setInstallState("installed");
+          return 100;
+        }
+        return prev + 10;
+      });
+    }, 250);
+  };
+
+  const handleVideoEnded = () => {
+    setElapsed(timerLimit); // Force timer completion
+  };
+
+  const handleTimeUpdate = () => {
+    if (videoRef.current) {
+      const cur = videoRef.current.currentTime;
+      const dur = videoRef.current.duration || timerLimit;
+      setDuration(dur);
+      // Synchronize timer gracefully
+      const percent = cur / dur;
+      setElapsed(Math.min(timerLimit, Math.floor(percent * timerLimit)));
+    }
+  };
+
+  const remaining = Math.max(0, timerLimit - elapsed);
+  const currentProgressPercent = (elapsed / timerLimit) * 100;
+
+  return (
+    <div style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+      backgroundColor: "#08090d",
+      zIndex: 9999,
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "space-between",
+      color: "#fff",
+      fontFamily: "'Rajdhani', system-ui, -apple-system, sans-serif"
+    }}>
+      {initPhase === "loading" || !currentAd ? (
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "20px",
+          height: "100%",
+          padding: "40px",
+          textAlign: "center"
+        }}>
+          {/* Pulsating Unity Cube container */}
+          <div style={{
+            width: "80px",
+            height: "80px",
+            backgroundColor: "#161920",
+            border: "3px solid #f39c12",
+            borderRadius: "16px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            boxShadow: "0 0 30px rgba(243, 156, 18, 0.3)",
+            animation: "pulse 1.5s infinite ease-in-out"
+          }}>
+            <span style={{ fontSize: "36px", fontWeight: "900", color: "#f39c12" }}>U</span>
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <h3 style={{ margin: "5px 0", fontSize: "18px", color: "#eef1f6", letterSpacing: "1px", fontWeight: "bold" }}>
+              INITIALIZING UNITY ADS
+            </h3>
+            <p style={{ margin: 0, fontSize: "12px", color: "#9ca3af" }}>Game ID: 800002331 &nbsp;·&nbsp; SDK v4.12.0</p>
+          </div>
+          <div style={{
+            width: "180px",
+            height: "5px",
+            backgroundColor: "#22252c",
+            borderRadius: "3px",
+            overflow: "hidden"
+          }}>
+            <div style={{
+              width: "100%",
+              height: "100%",
+              backgroundColor: "#f39c12",
+              boxShadow: "0 0 10px #f39c12",
+              animation: "loading-bar 1.5s ease-in-out"
+            }} />
+          </div>
+          <p style={{ margin: 0, fontSize: "11px", color: "rgba(255,255,255,0.45)", fontFamily: "monospace" }}>
+            [CACHING PLACEMENT: Interstitial_Android]
+          </p>
+        </div>
+      ) : (
+        <div style={{
+          width: "100%",
+          height: "100%",
+          position: "relative",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          padding: "20px",
+          background: "linear-gradient(180deg, #0f1118 0%, #08090c 100%)"
+        }}>
+          {/* Top Status Belt */}
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
+            paddingBottom: "14px",
+            zIndex: 20
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <div style={{
+                backgroundColor: "#f39c12",
+                color: "#12141c",
+                padding: "3px 10px",
+                borderRadius: "5px",
+                fontSize: "12px",
+                fontWeight: "900",
+                letterSpacing: "0.5px"
+              }}>
+                UNITY LIVE AD
+              </div>
+              <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>
+                ID: 800002331
+              </span>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              {/* Dynamic countdown state */}
+              {remaining > 0 ? (
+                <div style={{
+                  background: "rgba(0,0,0,0.6)",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  borderRadius: "20px",
+                  padding: "6px 14px",
+                  fontSize: "13px",
+                  fontWeight: "700",
+                  color: "#f39c12",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px"
+                }}>
+                  ⏱️ Ad completes in <strong style={{ fontSize: "14px", color: "#fff" }}>{remaining}s</strong>
+                </div>
+              ) : (
+                <button
+                  id="claim-reward-btn"
+                  onClick={() => onComplete(amount)}
+                  style={{
+                    background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "20px",
+                    padding: "8px 20px",
+                    fontWeight: "900",
+                    fontSize: "14px",
+                    cursor: "pointer",
+                    boxShadow: "0 0 20px rgba(16,185,129,0.5)",
+                    animation: "pulse 1.5s infinite"
+                  }}
+                >
+                  ✅ CLAIM COINS & CLOSE [X]
+                </button>
+              )}
+
+              {/* Speaker Control */}
+              <button
+                id="mute-toggle-btn"
+                onClick={handleMuteToggle}
+                style={{
+                  border: "none",
+                  background: isMuted ? "rgba(243, 156, 18, 0.25)" : "rgba(255,255,255,0.08)",
+                  borderWidth: isMuted ? "1px" : "0px",
+                  borderColor: "#f39c12",
+                  borderStyle: "solid",
+                  borderRadius: "50%",
+                  width: "36px",
+                  height: "36px",
+                  cursor: "pointer",
+                  color: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "15px",
+                  boxShadow: isMuted ? "0 0 10px rgba(243, 156, 18, 0.4)" : "none"
+                }}
+                title={isMuted ? "Unmute Ad Sound" : "Mute Sound"}
+              >
+                {isMuted ? "🔇" : "🔊"}
+              </button>
+            </div>
+          </div>
+
+          {/* Interactive Player Frame */}
+          <div style={{
+            flex: 1,
+            position: "relative",
+            margin: "15px 0",
+            backgroundColor: "#000",
+            border: "1.5px solid rgba(255,255,255,0.08)",
+            borderRadius: "16px",
+            overflow: "hidden",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+          }}>
+            {/* The Actual HTML5 Video element stream */}
+            {!videoError ? (
+              <video
+                ref={videoRef}
+                src={currentAd.url}
+                autoPlay
+                playsInline
+                muted={isMuted}
+                onTimeUpdate={handleTimeUpdate}
+                onEnded={handleVideoEnded}
+                onError={() => {
+                  console.error("Video play error. Activating automatic simulated stream fallback.");
+                  setVideoError(true);
+                }}
+                onClick={() => {
+                  if (videoRef.current) {
+                    if (videoRef.current.paused) {
+                      videoRef.current.play().then(() => setVideoPlaying(true));
+                    } else {
+                      videoRef.current.pause();
+                      setVideoPlaying(false);
+                    }
+                  }
+                }}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  cursor: "pointer",
+                  zIndex: 2
+                }}
+              />
+            ) : (
+              // Backup ultra-polished simulated video screen
+              <div style={{
+                width: "100%",
+                height: "100%",
+                background: "linear-gradient(135deg, #111827 0%, #1f2937 100%)",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "20px",
+                textAlign: "center",
+                zIndex: 2
+              }}>
+                <span style={{ fontSize: "50px", marginBottom: "12px", animation: "pulse 2s infinite" }}>📺</span>
+                <span style={{ fontSize: "16px", fontWeight: "bold", color: "#f39c12", letterSpacing: "1px" }}>
+                  UNITY VIDEO AD STREAMING
+                </span>
+                <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)", maxWidth: "260px", margin: "6px 0 0 0" }}>
+                  Playing "{currentAd.title}" trailer in HD. Timer is running securely.
+                </p>
+              </div>
+            )}
+
+            {/* Overlap Indicator to guide the user to turn sound ON */}
+            {isMuted && initPhase === "ready" && (
+              <div style={{
+                position: "absolute",
+                top: "20px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                backgroundColor: "rgba(243, 156, 18, 0.95)",
+                color: "#12141c",
+                borderRadius: "30px",
+                padding: "8px 18px",
+                fontSize: "12px",
+                fontWeight: "bold",
+                zIndex: 10,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                boxShadow: "0 4px 15px rgba(243,156,18,0.5)",
+                animation: "pulse 1.2s infinite ease-in-out",
+                pointerEvents: "none"
+              }}>
+                <span>🔊 TAP THE SPEAKER ICON TO UNMUTE AD SOUND</span>
+              </div>
+            )}
+
+            {/* Subtitle / Video Badge Overlay */}
+            <div style={{
+              position: "absolute",
+              bottom: "16px",
+              left: "16px",
+              background: "rgba(10, 12, 18, 0.85)",
+              backdropFilter: "blur(4px)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: "8px",
+              padding: "10px 14px",
+              zIndex: 10,
+              maxWidth: "85%",
+              pointerEvents: "none"
+            }}>
+              <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.45)", textTransform: "uppercase", fontWeight: "900", letterSpacing: "0.5px" }}>
+                🎯 Sponsored Ad: {currentAd.category}
+              </div>
+              <div style={{ fontSize: "13px", fontWeight: "bold", color: "#fff", margin: "2px 0 1px 0" }}>
+                {currentAd.title}
+              </div>
+              <div style={{ fontSize: "11px", color: "#9ca3af" }}>
+                By {currentAd.dev}
+              </div>
+            </div>
+
+            {/* Precise progress loader line */}
+            <div style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              height: "4px",
+              backgroundColor: "#f39c12",
+              boxShadow: "0 0 8px #f39c12",
+              width: `${currentProgressPercent}%`,
+              zIndex: 10,
+              transition: "width 0.2s linear"
+            }} />
+          </div>
+
+          {/* Premium Store Install Card */}
+          <div style={{
+            background: "rgba(22, 25, 35, 0.9)",
+            border: "1.5px solid rgba(243, 156, 18, 0.25)",
+            borderRadius: "14px",
+            padding: "12px 16px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "12px",
+            zIndex: 20
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", flex: 1 }}>
+              <div style={{
+                fontSize: "24px",
+                width: "48px",
+                height: "48px",
+                background: "rgba(255,255,255,0.06)",
+                borderRadius: "12px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                border: "1px solid rgba(255,255,255,0.08)"
+              }}>
+                {currentAd.icon}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                  color: "#fff",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis"
+                }}>
+                  {currentAd.title}
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11px", color: "rgba(255,255,255,0.5)" }}>
+                  <span>⭐ 4.8</span>
+                  <span>·</span>
+                  <span>Free Install</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Premium CTA Button with full downloader simulation */}
+            {installState === "idle" && (
+              <button
+                id="ad-install-btn"
+                onClick={startInstallSequence}
+                style={{
+                  background: "linear-gradient(135deg, #f39c12 0%, #d35400 100%)",
+                  color: "#12141c",
+                  border: "none",
+                  borderRadius: "8px",
+                  padding: "10px 18px",
+                  fontWeight: "bold",
+                  fontSize: "13px",
+                  cursor: "pointer",
+                  letterSpacing: "0.5px",
+                  boxShadow: "0 0 15px rgba(243, 156, 18, 0.3)",
+                  transition: "all 0.2s ease"
+                }}
+              >
+                📥 INSTALL
+              </button>
+            )}
+
+            {installState === "downloading" && (
+              <div style={{
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: "8px",
+                padding: "8px 12px",
+                minWidth: "120px",
+                textAlign: "center"
+              }}>
+                <div style={{ fontSize: "11px", color: "#f39c12", fontWeight: "bold" }}>DOWNLOADING {downloadProgress}%</div>
+                <div style={{ width: "100%", height: "3px", backgroundColor: "rgba(255,255,255,0.1)", borderRadius: "2px", marginTop: "4px", overflow: "hidden" }}>
+                  <div style={{ width: `${downloadProgress}%`, height: "100%", backgroundColor: "#f39c12" }} />
+                </div>
+              </div>
+            )}
+
+            {installState === "installed" && (
+              <button
+                disabled
+                style={{
+                  background: "rgba(16, 185, 129, 0.15)",
+                  color: "#10b981",
+                  border: "1px solid #10b981",
+                  borderRadius: "8px",
+                  padding: "10px 18px",
+                  fontWeight: "bold",
+                  fontSize: "12px"
+                }}
+              >
+                ✓ INSTALLED
+              </button>
+            )}
+          </div>
+
+          {/* Bottom Branding & Verification Belt */}
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "4px",
+            alignItems: "center",
+            borderTop: "1px solid rgba(255,255,255,0.06)",
+            paddingTop: "12px",
+            zIndex: 20
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <span style={{ fontSize: "12px" }}>🛡️</span>
+              <span style={{ fontSize: "11px", fontWeight: "700", color: "#f39c12", letterSpacing: "0.5px" }}>
+                UNITY MONETIZATION SYSTEM (ID: 800002331)
+              </span>
+            </div>
+            <p style={{ margin: 0, textTransform: "capitalize", fontSize: "10px", color: "rgba(255,255,255,0.4)", textAlign: "center" }}>
+              Ad unit triggered for: "{title}". Complete watch time to get reward.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Styled Animations Injected */}
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.03); opacity: 0.95; }
+        }
+        @keyframes loading-bar {
+          from { width: 0%; }
+          to { width: 100%; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 function HomePage({ coins, setCoins, showToast, adsWatched, setAdsWatched, checkinDone, setCheckinDone, setTxns }: HomePageProps) {
   const [adModal, setAdModal] = useState<Task | null>(null);
   const [spinOpen, setSpinOpen] = useState(false);
   const [dailyNotifyClaimed, setDailyNotifyClaimed] = useState(false);
   const [coinFloats, setCoinFloats] = useState<Array<{ id: number; x: number }>>([]);
+  
+  // Intercept variables to display Unity Interstitial Ad on Task completion
+  const [pendingReward, setPendingReward] = useState<{
+    amount: number;
+    desc: string;
+    isAdTask?: boolean;
+  } | null>(null);
 
   const balance = coins * COIN_VALUE;
   const dailyTarget = 100;
@@ -2698,39 +3295,28 @@ function HomePage({ coins, setCoins, showToast, adsWatched, setAdsWatched, check
   const handleTaskClick = (task: Task) => setAdModal(task);
 
   const handleEarn = (amount: number) => {
-    setCoins(c => c + amount);
-    setAdsWatched(a => a + 1);
-    const id = Date.now();
-    setCoinFloats(f => [...f, { id, x: Math.random() * 200 + 100 }]);
-    setTimeout(() => setCoinFloats(f => f.filter(c => c.id !== id)), 1000);
-    showToast(`+${amount} 🪙 Coins Earned!`);
-    setTxns(prev => [
-      { id: Date.now(), type: "earn", desc: adModal ? adModal.title : "Ad / Task Reward", coins: amount, time: "Just now" },
-      ...prev
-    ]);
+    // Intercept with Unity Ad
+    setPendingReward({
+      amount,
+      desc: adModal ? adModal.title : "Ad / Task Reward",
+      isAdTask: true
+    });
   };
 
   const handleCheckin = () => {
     if (checkinDone) return;
+    setPendingReward({
+      amount: COINS_PER_CHECKIN,
+      desc: "Daily Bonus Check-in"
+    });
     setCheckinDone(true);
-    setCoins(c => c + COINS_PER_CHECKIN);
-    showToast(`+${COINS_PER_CHECKIN} 🪙 Daily Check-in!`);
-    setTxns(prev => [
-      { id: Date.now(), type: "earn", desc: "Daily Bonus Check-in", coins: COINS_PER_CHECKIN, time: "Just now" },
-      ...prev
-    ]);
   };
 
   const handleSpinComplete = (amount: number) => {
-    setCoins(c => c + amount);
-    const id = Date.now();
-    setCoinFloats(f => [...f, { id, x: Math.random() * 200 + 100 }]);
-    setTimeout(() => setCoinFloats(f => f.filter(c => c.id !== id)), 1000);
-    showToast(`+${amount} 🪙 Lucky Spin Win!`);
-    setTxns(prev => [
-      { id: Date.now(), type: "earn", desc: "Lucky Spin Reward", coins: amount, time: "Just now" },
-      ...prev
-    ]);
+    setPendingReward({
+      amount,
+      desc: "Lucky Spin Reward"
+    });
   };
 
   const streakDays = [true, true, true, false, false, false, false];
@@ -2789,13 +3375,11 @@ function HomePage({ coins, setCoins, showToast, adsWatched, setAdsWatched, check
             </div>
           </div>
           <button onClick={() => {
-            setCoins(c => c + 100);
+            setPendingReward({
+              amount: 100,
+              desc: "Notification: Daily 100c Reward Claimed"
+            });
             setDailyNotifyClaimed(true);
-            setTxns(prev => [
-              { id: Date.now(), type: "earn", desc: "Notification: Daily 100c Reward Claimed", coins: 100, time: "Just now" },
-              ...prev
-            ]);
-            showToast("🎁 +100 Coins Claimed!");
           }} className="earn-btn" style={{ background: "linear-gradient(135deg, var(--cyan), #0891b2)", padding: "10px 14px", flexShrink: 0 }}>
             CLAIM
           </button>
@@ -2927,6 +3511,31 @@ function HomePage({ coins, setCoins, showToast, adsWatched, setAdsWatched, check
         <SpinWheelModal
           onClose={() => setSpinOpen(false)}
           onComplete={handleSpinComplete}
+        />
+      )}
+
+      {pendingReward && (
+        <UnityInterstitialAd
+          amount={pendingReward.amount}
+          title={pendingReward.desc}
+          onClose={() => setPendingReward(null)}
+          onComplete={(rewardAmount) => {
+            setCoins(c => c + rewardAmount);
+            if (pendingReward.isAdTask) {
+              setAdsWatched(a => a + 1);
+            }
+            const id = Date.now();
+            setCoinFloats(f => [...f, { id, x: Math.random() * 200 + 100 }]);
+            setTimeout(() => setCoinFloats(f => f.filter(c => c.id !== id)), 1000);
+            
+            showToast(`🎉 +${rewardAmount} Coins Claimed after Unity Ad!`);
+            
+            setTxns(prev => [
+              { id: Date.now(), type: "earn", desc: pendingReward.desc, coins: rewardAmount, time: "Just now" },
+              ...prev
+            ]);
+            setPendingReward(null);
+          }}
         />
       )}
     </div>
