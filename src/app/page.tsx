@@ -20,11 +20,11 @@ interface Task {
 }
 
 const TASKS: Task[] = [
-  { id: 1, title: "Watch Banner Ad", coins: 5, icon: "📢", type: "ad", time: "5 sec", color: "#F59E0B" },
+  { id: 1, title: "Tap Coin Blast", coins: 20, icon: "🪙", type: "booster", time: "Instant", color: "#F59E0B" },
   { id: 2, title: "Install Navi App", coins: 250, icon: "📲", type: "install", time: "Instant", color: "#8B5CF6", link: "https://r.navi.com/r169dB" },
-  { id: 3, title: "Interstitial Ad", coins: 15, icon: "📱", type: "ad", time: "15 sec", color: "#06B6D4" },
+  { id: 3, title: "Spin Wheel Quest", coins: 30, icon: "🎰", type: "spin_quest", time: "Instant", color: "#06B6D4" },
   { id: 4, title: "Captcha Solver", coins: 25, icon: "🛡️", type: "captcha", time: "Instant", color: "#10B981" },
-  { id: 5, title: "Watch 3 Ads Combo", coins: 70, icon: "🔥", type: "combo", time: "45 sec", color: "#EF4444" },
+  { id: 5, title: "Mega Tap Challenge", coins: 50, icon: "⚡", type: "mega_booster", time: "Instant", color: "#EF4444" },
 ];
 
 interface LeaderboardUser {
@@ -1268,11 +1268,6 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
   const [boosterTaps, setBoosterTaps] = useState(0);
 
   useEffect(() => {
-    // Dynamically log AdMob initialization and tracking
-    console.log("AdMob SDK Initialized successfully. App ID: ca-app-pub-1741947856013956~9733783734, Ad Unit ID: ca-app-pub-1741947856013956/8677898539");
-  }, []);
-
-  useEffect(() => {
     if (phase !== "watching") {
       setVideoPlayFailed(false);
       setVideoPlaying(false);
@@ -1305,15 +1300,13 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
   const remaining = Math.max(0, total - elapsed);
 
   const adContent: Record<string, { bg: string; text: string; sub: string; color: string }> = {
-    ad: { bg: "linear-gradient(135deg,#1e3a5f,#0d2137)", text: "📢 Banner Ad", sub: "AdMob Banner Ad Unit", color: "#F59E0B" },
-    video: { bg: "linear-gradient(135deg,#2d1b69,#1a0f3d)", text: "🎬 Video Ad", sub: "AdMob Rewarded Video Unit", color: "#8B5CF6" },
+    booster: { bg: "linear-gradient(135deg,#1e3a5f,#0d2137)", text: "🪙 Coin Tap Challenge", sub: "Tap the coin to generate gold coins", color: "#F59E0B" },
+    mega_booster: { bg: "linear-gradient(135deg,#3a1a1a,#1f0d0d)", text: "⚡ Mega Tap Challenge", sub: "Tap rapidly to claim the mega reward", color: "#EF4444" },
     install: { bg: "linear-gradient(135deg,#151c2d,#0f172a)", text: "📲 Install App", sub: "Download Navi App", color: "#8B5CF6" },
-    rewarded: { bg: "linear-gradient(135deg,#1a3a2a,#0d1f15)", text: "🎁 Rewarded Ad", sub: "AdMob Reward Ad unit", color: "#10B981" },
-    combo: { bg: "linear-gradient(135deg,#3a1a1a,#1f0d0d)", text: "🔥 Combo Ads", sub: "AdMob Interstitial Reward", color: "#EF4444" },
     quiz: { bg: "linear-gradient(135deg,#3a1a3a,#1f0d1f)", text: "🧠 Quiz Time!", sub: "Complete to Earn", color: "#EC4899" },
   };
 
-  const ad = adContent[task.type] || adContent.ad;
+  const ad = adContent[task.type] || adContent.booster;
 
   const handleVerifyInstall = () => {
     if (!clickedLink) {
@@ -1324,8 +1317,8 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
     setPhase("verifying");
     setTimeout(() => {
       setElapsed(0);
-      setPhase("watching"); // plays the ad after finishing the install task
-    }, 2000);
+      setPhase("done"); // Bypasses the simulated ad!
+    }, 1500);
   };
 
   const handleBoosterTap = () => {
@@ -1336,7 +1329,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
       setPhase("verifying");
       setTimeout(() => {
         setElapsed(0);
-        setPhase("watching"); // plays the ad after finishing the booster task
+        setPhase("done"); // Bypasses the simulated ad!
       }, 1500);
     }
   };
@@ -1409,7 +1402,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                 <div style={{ fontSize: 50, marginBottom: 8 }} className="animate-bounce">📲</div>
                 <div style={{ fontWeight: 700, fontSize: 16, color: "#fff" }}>Navi App Install</div>
                 <div style={{ fontSize: 12, color: "#94A3B8", marginTop: 4, textAlign: "center", lineHeight: "1.4", maxWidth: "400px" }}>
-                  👉 Niche diye button se Navi app install karein aur signup complete karein! Iske baad reward lene ke liye AdMob standard ad play hoga.
+                  👉 Niche diye button se Navi app install karein aur signup complete karein! Iske baad reward claim karein.
                 </div>
                 <div style={{ background: "rgba(255,255,255,0.06)", padding: "10px", borderRadius: 8, marginTop: 12, fontSize: 11, color: "var(--gold-light)", textAlign: "center" }}>
                   Niyam: App download karke registered status check lagana zaruri hai.
@@ -1443,7 +1436,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                   style={{ marginTop: 4 }}
                   onClick={handleVerifyInstall}
                 >
-                  🚀 Verify & Watch AdMob Ad
+                  🚀 Verify & Complete Task
                 </button>
               </div>
             </>
@@ -1453,7 +1446,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                 <span>{task.icon}</span> {task.title}
               </div>
               <div className="modal-sub">
-                Task Step 1: Active Reward Booster Key
+                Task Step: Activate Reward Booster Key
               </div>
 
               <div className="ad-screen" style={{ 
@@ -1520,8 +1513,8 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
 
                 <p style={{ color: "var(--muted)", fontSize: "11px", textAlign: "center", zIndex: 5, marginTop: "12px", maxWidth: "270px", lineHeight: "1.4" }}>
                   {boosterTaps >= 5 
-                    ? "Verification connection loading... Please wait for AdMob video ad stream."
-                    : "Coins booster power ready! Tap to verify dynamic coin request and unlock the video ad."}
+                    ? "Verification connection loaded! Tap below to claim your reward."
+                    : "Coins booster power ready! Tap to verify coin request and unlock the reward."}
                 </p>
               </div>
 
@@ -1531,8 +1524,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                   className="withdraw-btn-main"
                   disabled={boosterTaps < 5}
                   onClick={() => {
-                    setElapsed(0);
-                    setPhase("watching");
+                    setPhase("done");
                   }}
                   style={{
                     background: boosterTaps >= 5 ? "linear-gradient(135deg, var(--gold), #d97706)" : "rgba(255,255,255,0.05)",
@@ -1540,7 +1532,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                     cursor: boosterTaps >= 5 ? "pointer" : "not-allowed"
                   }}
                 >
-                  {boosterTaps >= 5 ? "🎬 Start AdMob Video Ad & Claim →" : "🔒 Complete Coin Tapping Task First"}
+                  {boosterTaps >= 5 ? "🚀 Complete Task & Claim Reward →" : "🔒 Complete Coin Tapping Task First"}
                 </button>
               </div>
             </>
@@ -1955,7 +1947,7 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
     if (typed.trim().toUpperCase() === code) {
       setErrorMsg("");
       setElapsed(0);
-      setStep("watching_ad");
+      setStep("solved");
     } else {
       setErrorMsg("❌ Incorrect code! Letters matching check karke dobara enter karein.");
     }
@@ -2685,13 +2677,8 @@ interface HomePageProps {
   setTxns: React.Dispatch<React.SetStateAction<Transaction[]>>;
 }
 
-// ─── Unity Interstitial Ad ───────────────────────────────────────────────────
-interface UnityInterstitialAdProps {
-  amount: number;
-  onClose: () => void;
-  onComplete: (amount: number) => void;
-  title: string;
-}
+// ─── Unity Interstitial Ad Removed ───────────────────────────────────────────
+interface UnityInterstitialAdProps {}
 
 const VIDEO_ADS_COLLECTION = [
   {
@@ -2731,19 +2718,42 @@ const VIDEO_ADS_COLLECTION = [
   }
 ];
 
-function UnityInterstitialAd({ amount, onClose, onComplete, title }: UnityInterstitialAdProps) {
-  const [initPhase, setInitPhase] = useState<"loading" | "ready">("loading");
-  const [currentAd, setCurrentAd] = useState<typeof VIDEO_ADS_COLLECTION[0] | null>(null);
-  const [elapsed, setElapsed] = useState(0);
-  const [duration, setDuration] = useState(15);
-  const [isMuted, setIsMuted] = useState(true); // default true for autoplay bypass
-  const [installState, setInstallState] = useState<"idle" | "downloading" | "installed">("idle");
-  const [downloadProgress, setDownloadProgress] = useState(0);
-  const [videoPlaying, setVideoPlaying] = useState(false);
-  const [videoError, setVideoError] = useState(false);
+function UnityInterstitialAd(props: UnityInterstitialAdProps) {
+  return null;
+}
 
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const timerLimit = 15; // 15 seconds Unity Ad standard limit
+function UnityInterstitialAdOld(props: any) {
+  // Unused ad-simulation helper silenced
+  const videoRef = null as any;
+  const timerLimit = 15;
+  const initPhase = "ready" as any;
+  const currentAd = null as any;
+  const elapsed = 0;
+  const duration = 15;
+  const isMuted = true;
+  const installState = "idle" as any;
+  const downloadProgress = 0;
+  const videoPlaying = false;
+  const videoError = true;
+  const setCoins = null as any;
+  const setCoinFloats = null as any;
+  const showToast = null as any;
+  const onComplete = null as any;
+  const amount = 0;
+  const title = "";
+  const VIDEO_ADS_COLLECTION = [] as any;
+  const setCurrentAd = null as any;
+  const setInitPhase = null as any;
+  const setElapsed = null as any;
+  const setVideoPlaying = null as any;
+  const setIsMuted = null as any;
+  const setInstallState = null as any;
+  const setDownloadProgress = null as any;
+  const setDuration = null as any;
+  const setVideoError = null as any;
+  return null;
+  const videoRefOriginal = useRef<HTMLVideoElement>(null);
+  const timerLimitOriginal = 15; // 15 seconds Unity Ad standard limit
 
   useEffect(() => {
     // Select random video ad from our collection of high quality mobile game advertisements
@@ -2833,7 +2843,8 @@ function UnityInterstitialAd({ amount, onClose, onComplete, title }: UnityInters
   const remaining = Math.max(0, timerLimit - elapsed);
   const currentProgressPercent = (elapsed / timerLimit) * 100;
 
-  return (
+  return null;
+  const dummyJSX = (
     <div style={{
       position: "fixed",
       top: 0,
@@ -3280,43 +3291,47 @@ function HomePage({ coins, setCoins, showToast, adsWatched, setAdsWatched, check
   const [spinOpen, setSpinOpen] = useState(false);
   const [dailyNotifyClaimed, setDailyNotifyClaimed] = useState(false);
   const [coinFloats, setCoinFloats] = useState<Array<{ id: number; x: number }>>([]);
-  
-  // Intercept variables to display Unity Interstitial Ad on Task completion
-  const [pendingReward, setPendingReward] = useState<{
-    amount: number;
-    desc: string;
-    isAdTask?: boolean;
-  } | null>(null);
 
   const balance = coins * COIN_VALUE;
   const dailyTarget = 100;
-  const dailyProgress = Math.min(adsWatched * COINS_PER_AD, dailyTarget);
+  const dailyProgress = Math.min(adsWatched * 20, dailyTarget);
 
-  const handleTaskClick = (task: Task) => setAdModal(task);
+  const handleTaskClick = (task: Task) => {
+    if (task.type === "spin_quest") {
+      setSpinOpen(true);
+    } else {
+      setAdModal(task);
+    }
+  };
+
+  const awardCoins = (amount: number, desc: string, isAdTask?: boolean) => {
+    setCoins(c => c + amount);
+    if (isAdTask) {
+      setAdsWatched(a => a + 1);
+    }
+    const id = Date.now();
+    setCoinFloats(f => [...f, { id, x: Math.random() * 200 + 100 }]);
+    setTimeout(() => setCoinFloats(f => f.filter(c => c.id !== id)), 1000);
+    showToast(`🎉 +${amount} Coins Claimed!`);
+    
+    setTxns(prev => [
+      { id: Date.now(), type: "earn", desc, coins: amount, time: "Just now" },
+      ...prev
+    ]);
+  };
 
   const handleEarn = (amount: number) => {
-    // Intercept with Unity Ad
-    setPendingReward({
-      amount,
-      desc: adModal ? adModal.title : "Ad / Task Reward",
-      isAdTask: true
-    });
+    awardCoins(amount, adModal ? adModal.title : "Task Reward", true);
   };
 
   const handleCheckin = () => {
     if (checkinDone) return;
-    setPendingReward({
-      amount: COINS_PER_CHECKIN,
-      desc: "Daily Bonus Check-in"
-    });
+    awardCoins(COINS_PER_CHECKIN, "Daily Bonus Check-in");
     setCheckinDone(true);
   };
 
   const handleSpinComplete = (amount: number) => {
-    setPendingReward({
-      amount,
-      desc: "Lucky Spin Reward"
-    });
+    awardCoins(amount, "Lucky Spin Reward");
   };
 
   const streakDays = [true, true, true, false, false, false, false];
@@ -3341,7 +3356,7 @@ function HomePage({ coins, setCoins, showToast, adsWatched, setAdsWatched, check
         <div className="hero-stats">
           <div className="hero-stat">
             <div className="hero-stat-val">{adsWatched}</div>
-            <div className="hero-stat-lbl">Ads Today</div>
+            <div className="hero-stat-lbl">Tasks Done</div>
           </div>
           <div className="hero-stat">
             <div className="hero-stat-val">₹{balance.toFixed(0)}</div>
@@ -3375,10 +3390,7 @@ function HomePage({ coins, setCoins, showToast, adsWatched, setAdsWatched, check
             </div>
           </div>
           <button onClick={() => {
-            setPendingReward({
-              amount: 100,
-              desc: "Notification: Daily 100c Reward Claimed"
-            });
+            awardCoins(100, "Notification: Daily 100c Reward Claimed");
             setDailyNotifyClaimed(true);
           }} className="earn-btn" style={{ background: "linear-gradient(135deg, var(--cyan), #0891b2)", padding: "10px 14px", flexShrink: 0 }}>
             CLAIM
@@ -3392,10 +3404,10 @@ function HomePage({ coins, setCoins, showToast, adsWatched, setAdsWatched, check
       </div>
       <div className="quick-actions">
         {[
-          { icon: "📢", label: "Watch Ad", bg: "rgba(245,158,11,0.12)", action: () => handleTaskClick(TASKS[0]) },
-          { icon: "🎬", label: "Video Ad", bg: "rgba(139,92,246,0.12)", action: () => handleTaskClick(TASKS[1]) },
+          { icon: "🪙", label: "Tap Gold", bg: "rgba(245,158,11,0.12)", action: () => handleTaskClick(TASKS[0]) },
+          { icon: "📲", label: "Navi App", bg: "rgba(139,92,246,0.12)", action: () => handleTaskClick(TASKS[1]) },
           { icon: "🛡️", label: "Captcha", bg: "rgba(16,185,129,0.12)", action: () => handleTaskClick(TASKS[3]) },
-          { icon: "🎰", label: "Spin", bg: "rgba(236,72,153,0.12)", action: () => setSpinOpen(true) },
+          { icon: "🎰", label: "Spin Wheel", bg: "rgba(236,72,153,0.12)", action: () => setSpinOpen(true) },
         ].map((q, i) => (
           <div key={i} className="quick-btn" onClick={q.action}>
             <div className="quick-icon" style={{ background: q.bg }}>{q.icon}</div>
@@ -3435,7 +3447,7 @@ function HomePage({ coins, setCoins, showToast, adsWatched, setAdsWatched, check
           <div className="progress-fill" style={{ width: `${(dailyProgress / dailyTarget) * 100}%` }} />
         </div>
         <div className="progress-sub">
-          Watch more ads to hit your daily goal!
+          Complete more tasks to hit your daily goal!
         </div>
       </div>
 
@@ -3476,7 +3488,7 @@ function HomePage({ coins, setCoins, showToast, adsWatched, setAdsWatched, check
               <div className="task-title">{task.title}</div>
               <div className="task-meta">
                 <div className="task-time">⏱ {task.time}</div>
-                <div className="chip">{task.type === "captcha" ? "Puzzle" : "AdMob"}</div>
+                <div className="chip">{task.type === "captcha" ? "Puzzle" : task.type === "install" ? "Install" : "Challenge"}</div>
               </div>
             </div>
             <div className="task-reward">
@@ -3511,31 +3523,6 @@ function HomePage({ coins, setCoins, showToast, adsWatched, setAdsWatched, check
         <SpinWheelModal
           onClose={() => setSpinOpen(false)}
           onComplete={handleSpinComplete}
-        />
-      )}
-
-      {pendingReward && (
-        <UnityInterstitialAd
-          amount={pendingReward.amount}
-          title={pendingReward.desc}
-          onClose={() => setPendingReward(null)}
-          onComplete={(rewardAmount) => {
-            setCoins(c => c + rewardAmount);
-            if (pendingReward.isAdTask) {
-              setAdsWatched(a => a + 1);
-            }
-            const id = Date.now();
-            setCoinFloats(f => [...f, { id, x: Math.random() * 200 + 100 }]);
-            setTimeout(() => setCoinFloats(f => f.filter(c => c.id !== id)), 1000);
-            
-            showToast(`🎉 +${rewardAmount} Coins Claimed after Unity Ad!`);
-            
-            setTxns(prev => [
-              { id: Date.now(), type: "earn", desc: pendingReward.desc, coins: rewardAmount, time: "Just now" },
-              ...prev
-            ]);
-            setPendingReward(null);
-          }}
         />
       )}
     </div>

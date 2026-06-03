@@ -1,6 +1,6 @@
 {
   "name": "Money",
-  "description": "An interactive platform simulator where users can complete daily check-ins, participate in lucky spins, and watch dummy ads to earn coins and track rewards.",
+  "description": "An interactive platform simulator where users can complete daily check-ins, participate in lucky spins, and complete interactive puzzles and tasks to earn coins and track rewards.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

@@ -1,11 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: "export",
-  distDir: "www",
   images: {
     unoptimized: true,
   },
+  ...(process.env.NEXT_DEV !== "true" ? {
+    output: "export",
+    distDir: "www",
+  } : {}),
 };
 
 export default nextConfig;

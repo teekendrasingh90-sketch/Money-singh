@@ -2,8 +2,8 @@ import "./globals.css";
 import React from "react";
 
 export const metadata = {
-  title: "AdMob Cash Earn - Play and Earn Coins",
-  description: "Watch Ads, Claim Rewards and Withdraw Coins securely with Google AdMob Reward system.",
+  title: "Cash Earn - Play and Earn Coins",
+  description: "Complete Tasks, Claim Rewards and Withdraw Coins securely with our automated rewarding system.",
 };
 
 export default function RootLayout({
