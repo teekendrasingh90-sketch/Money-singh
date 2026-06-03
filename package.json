@@ -7,8 +7,7 @@
     "dev": "NEXT_DEV=true next dev -p 3000 -H 0.0.0.0",
     "build": "next build && node zip-www.js",
     "start": "node server.js",
-    "lint": "tsc --noEmit",
-    "test": "echo 'No tests configured' && exit 0"
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.4",
