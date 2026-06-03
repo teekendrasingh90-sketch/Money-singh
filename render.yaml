@@ -1,0 +1,25 @@
+# Render Blueprint Configuration
+# This file automatically configures your app on Render.com to prevent 404 errors!
+
+services:
+  # Option 1: Static Site (Recommended, 100% Free, runs directly from static files)
+  - type: static
+    name: money-singh-static-site
+    env: static
+    buildCommand: npm run build
+    publishPath: ./www
+    routes:
+      # Rewrites all routes to index.html for Single Page Application (SPA) routing
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+  # Option 2: Web Service (If you prefer to run it as a Node.js server)
+  - type: web
+    name: money-singh-web-service
+    env: node
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 3000
