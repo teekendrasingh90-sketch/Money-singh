@@ -72,24 +72,37 @@ try {
 
   const zip = new AdmZip();
   
-  // Custom zip packer to only include client-only directories/files from www-temp
+  // Clean up any unnecessary files/folders in tempDir before zipping so they don't bloat the package
   const tempContents = fs.readdirSync(tempDir);
   for (const item of tempContents) {
     const itemPath = path.join(tempDir, item);
-    const stat = fs.statSync(itemPath);
+    const lowercaseItem = item.toLowerCase();
     
-    // Explicit exclusions for server, compile cache and old ZIP files
-    if (item === 'cache' || item === 'server' || item === 'types' || item.endsWith('.zip')) {
-      console.log(`Skipping server/cache file from website.zip: ${item}`);
-      continue;
-    }
-    
-    if (stat.isDirectory()) {
-      zip.addLocalFolder(itemPath, item);
-    } else {
-      zip.addLocalFile(itemPath);
+    // Explicit exclusions for server, compile cache and old ZIP files on AppsGeyser exports
+    if (
+      lowercaseItem === 'cache' || 
+      lowercaseItem === 'server' || 
+      lowercaseItem === 'types' || 
+      lowercaseItem.endsWith('.zip') ||
+      lowercaseItem.startsWith('.')
+    ) {
+      console.log(`Excluding server/cache item from AppsGeyser package: ${item}`);
+      try {
+        const stat = fs.statSync(itemPath);
+        if (stat.isDirectory()) {
+          fs.rmSync(itemPath, { recursive: true, force: true });
+        } else {
+          fs.unlinkSync(itemPath);
+        }
+      } catch (err) {
+        console.error(`Could not remove ${itemPath}:`, err);
+      }
     }
   }
+  
+  // Add all files and folders inside tempDir directly to the root of the ZIP file
+  // This ensures index.html is at the ROOT of the zip as strictly required by AppsGeyser!
+  zip.addLocalFolder(tempDir);
   
   const zipPath = path.join(publicDir, 'website.zip');
   zip.writeZip(zipPath);
