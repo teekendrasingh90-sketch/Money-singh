@@ -15,8 +15,9 @@ function makePathsRelative(dir) {
       makePathsRelative(filePath);
     } else {
       const ext = path.extname(file).toLowerCase();
-      // Only process text files that contain path references
-      if (['.html', '.js', '.css', '.json'].includes(ext)) {
+      // Only process HTML and JSON files that contain path references. Never modify binary, JS, or CSS files,
+      // as search-and-replace strings in compiled webpack chunks break dynamic route imports.
+      if (['.html', '.json'].includes(ext)) {
         let content = fs.readFileSync(filePath, 'utf8');
         let modified = false;
 
@@ -42,9 +43,56 @@ function makePathsRelative(dir) {
           modified = true;
         }
 
+        // Inject high-compatibility webview router shim for file:/// protocol support in AppsGeyser
+        if (ext === '.html') {
+          const shimScript = `
+<script>
+  (function() {
+    try {
+      if (typeof window !== 'undefined' && window.location && window.location.protocol === 'file:') {
+        console.log("AppsGeyser file:// protocol compatibility shim loaded.");
+        
+        // Define path helpers so Next.js hydrates at "/" instead of "/android_asset/..."
+        if (window.Location && window.Location.prototype) {
+          try {
+            Object.defineProperty(window.Location.prototype, 'pathname', {
+              get: function() { return '/'; },
+              configurable: true
+            });
+          } catch(e) { console.warn("Could not shim pathname:", e); }
+          
+          try {
+            Object.defineProperty(window.Location.prototype, 'search', {
+              get: function() { return ''; },
+              configurable: true
+            });
+          } catch(e) { console.warn("Could not shim search:", e); }
+        }
+        
+        // Prevent SecurityError when updating window history inside file:/// Android WebViews
+        if (window.history) {
+          var noop = function() {};
+          window.history.pushState = noop;
+          window.history.replaceState = noop;
+        }
+      }
+    } catch(e) {
+      console.error("Protocol shim failure:", e);
+    }
+  })();
+</script>`;
+          if (content.includes('<head>')) {
+            content = content.replace('<head>', '<head>' + shimScript);
+            modified = true;
+          } else if (content.includes('<head ')) {
+            content = content.replace(/<head\b[^>]*>/, function(match) { return match + shimScript; });
+            modified = true;
+          }
+        }
+
         if (modified) {
           fs.writeFileSync(filePath, content, 'utf8');
-          console.log(`[AppsGeyser Fix] Corrected asset paths in relative format for: ${filePath}`);
+          console.log(`[AppsGeyser Fix] Corrected asset paths and injected shim in relative format for: ${filePath}`);
         }
       }
     }
