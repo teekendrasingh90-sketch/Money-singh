@@ -1,0 +1,46 @@
+format_version: "13"
+default_step_lib_source: "https://github.com/bitrise-io/bitrise-steplib.git"
+project_type: android
+
+trigger_map:
+  - push_branch: "*"
+    workflow: primary
+  - pull_request_source_branch: "*"
+    workflow: primary
+
+workflows:
+  primary:
+    summary: Build Next.js, run linter/tests, sync assets to Capacitor, and compile Android APK
+    steps:
+      - activate-ssh-key@4:
+          run_if_true: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+      - git-clone@8: {}
+      - install-missing-android-tools@3:
+          inputs:
+            - gradlew_path: ./android/gradlew
+      - npm@1:
+          title: Install NPM Dependencies
+          inputs:
+            - command: install
+      - npm@1:
+          title: Run Linter
+          inputs:
+            - command: run lint
+      - npm@1:
+          title: Run Tests (Prevents Error)
+          inputs:
+            - command: test
+      - npm@1:
+          title: Build Next.js Web Assets
+          inputs:
+            - command: run build
+      - npm@1:
+          title: Sync Assets to Android with Capacitor
+          inputs:
+            - command: exec cap sync
+      - android-build@1:
+          title: Build Android APK
+          inputs:
+            - project_location: ./android
+            - module: app
+            - variant: debug
