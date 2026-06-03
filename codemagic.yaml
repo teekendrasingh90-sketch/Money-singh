@@ -1,0 +1,77 @@
+# Codemagic CI/CD Automation Workflow Configuration
+# For more info see: https://docs.codemagic.io/yaml-basic-schema/yaml-getting-started/
+
+workflows:
+  android-capacitor-build:
+    name: Android Capacitor APK Build
+    max_build_duration: 60
+    instance_type: linux # Linux instance compiles Android projects 2-3x faster and is highly cost-effective/free tier friendly!
+    
+    environment:
+      node: v20.12.0     # Node.js version recommended for Next.js 15
+      java: 17           # Java version required by Android Gradle Plugin 8.x
+      groups:
+        - android-signing # Optional: Group for your Keystore details if signing release builds
+      vars:
+        # Prevent Android Gradle daemon from consuming too much memory in CI
+        GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=-Xmx2048m"
+
+    triggering:
+      events:
+        - push
+        - tag
+      branch_patterns:
+        - pattern: '*'
+          include: true
+          source: true
+
+    cache:
+      cache_paths:
+        - ~/.npm
+        - ~/.gradle/caches
+        - ~/.gradle/wrapper
+        - node_modules
+
+    scripts:
+      - name: Install Node.js Dependencies
+        script: |
+          npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+          
+      - name: Build Next.js Static Export
+        script: |
+          # Forces Next.js to compile pages into clean static HTML format inside "./www" directory
+          export NEXT_DEV=false
+          npm run build
+
+      - name: Sync Web Files with Capacitor Android Platform
+        script: |
+          # Synthesizes static web files and maps Capacitor plugins into the Android project
+          npx cap sync android
+
+      - name: Configure Android SDK Location
+        script: |
+          # Dynamically configures the Gradle local.properties for the Codemagic build environment SDK
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
+
+      - name: Build Android App (APK)
+        script: |
+          cd android
+          chmod +x gradlew
+          
+          # 1. Compile debug APK for immediate testing on physical device / emulator
+          ./gradlew assembleDebug --no-daemon
+          
+          # 2. Compile release APK (unsigned) for official release / signing pipelines
+          ./gradlew assembleRelease --no-daemon
+
+    artifacts:
+      - android/app/build/outputs/apk/debug/app-debug.apk
+      - android/app/build/outputs/apk/release/app-release-unsigned.apk
+
+    publishing:
+      email:
+        recipients:
+          - jaatcj4@gmail.com
+        notify:
+          success: true   # Keep user informed with an immediate download link on success
+          failure: true   # Notify immediately if high-severity Gradle build issues occur
