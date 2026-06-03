@@ -52,17 +52,18 @@ function makePathsRelative(dir) {
 }
 
 try {
-  console.log("Starting AppsGeyser optimizations on build assets in ./www...");
-  // Clear any old zip inside www to prevent recursive zipping feedback loop
-  const oldZipInWww = './www/website.zip';
-  if (fs.existsSync(oldZipInWww)) {
-    console.log(`Deleting duplicates inside www: ${oldZipInWww}`);
-    fs.unlinkSync(oldZipInWww);
+  console.log("Preparing AppsGeyser relative-path optimizations inside a temporary folder...");
+  const tempDir = './www-temp';
+  if (fs.existsSync(tempDir)) {
+    fs.rmSync(tempDir, { recursive: true, force: true });
   }
-
-  // Optimize path strings to make everything relative for offline / file:/// protocol use
-  makePathsRelative('./www');
-  console.log("AppsGeyser optimizations completed successfully.");
+  
+  // Copy static build files from pristine `./www` to target `./www-temp`
+  fs.cpSync('./www', tempDir, { recursive: true });
+  
+  // Optimize path strings inside the temp directory ONLY, leaving `./www` untouched for web hosting
+  makePathsRelative(tempDir);
+  console.log("AppsGeyser relative path optimizations completed successfully on temporary files.");
 
   const publicDir = './public';
   if (!fs.existsSync(publicDir)) {
@@ -71,11 +72,10 @@ try {
 
   const zip = new AdmZip();
   
-  // Custom zip packer to only include client-only directories/files in www
-  // This reduces APK sizes drastically and skips Next.js build cache/server systems
-  const wwwContents = fs.readdirSync('./www');
-  for (const item of wwwContents) {
-    const itemPath = path.join('./www', item);
+  // Custom zip packer to only include client-only directories/files from www-temp
+  const tempContents = fs.readdirSync(tempDir);
+  for (const item of tempContents) {
+    const itemPath = path.join(tempDir, item);
     const stat = fs.statSync(itemPath);
     
     // Explicit exclusions for server, compile cache and old ZIP files
@@ -94,7 +94,17 @@ try {
   const zipPath = path.join(publicDir, 'website.zip');
   zip.writeZip(zipPath);
   console.log(`Successfully zipped optimized static web files to ${zipPath}`);
+
+  // Clean up temporary folder
+  fs.rmSync(tempDir, { recursive: true, force: true });
+  console.log("Cleaned up temporary folders. Pristine `./www` folder remains untouched for production web serving.");
 } catch (error) {
   console.error('Error post-processing or zipping files:', error);
+  const tempDir = './www-temp';
+  if (fs.existsSync(tempDir)) {
+    try {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    } catch (_) {}
+  }
   process.exit(1);
 }
