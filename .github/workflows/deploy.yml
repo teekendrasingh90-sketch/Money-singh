@@ -29,6 +29,11 @@ jobs:
           node-version: 18
           cache: npm
 
+      - name: Setup GitHub Pages Config
+        uses: actions/configure-pages@v5
+        with:
+          static_site_generator: next
+
       - name: Install Dependencies
         run: npm install
 
@@ -37,9 +42,6 @@ jobs:
 
       - name: Create .nojekyll in build folder to allow _next path serving
         run: touch www/.nojekyll
-
-      - name: Setup GitHub Pages Config
-        uses: actions/configure-pages@v5
 
       - name: Upload Static Website Artifact
         uses: actions/upload-pages-artifact@v3
