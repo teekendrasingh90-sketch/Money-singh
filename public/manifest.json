@@ -1,0 +1,21 @@
+{
+  "name": "Cash Earn - Play & Earn Coins",
+  "short_name": "Cash Earn",
+  "description": "Complete Tasks, Claim Rewards and Withdraw Coins securely.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080C14",
+  "theme_color": "#F59E0B",
+  "icons": [
+    {
+      "src": "https://picsum.photos/seed/cashearn192/192/192",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://picsum.photos/seed/cashearn512/512/512",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
