@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "NEXT_DEV=true next dev -p 3000 -H 0.0.0.0",
-    "build": "next build && node zip-www.js",
+    "build": "NODE_ENV=production next build && node zip-www.js",
     "start": "node server.js",
     "lint": "tsc --noEmit"
   },
@@ -18,14 +18,18 @@
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
     "next": "^15.1.0",
-    "react": "^19.0.1",
-    "react-dom": "^19.0.1"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "overrides": {
+    "react": "$react",
+    "react-dom": "$react-dom"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.14",
     "@types/node": "^22.14.0",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
     "postcss": "^8.4.38",
     "tailwindcss": "^4.1.14",
     "typescript": "~5.8.2"

@@ -1,10 +1,22 @@
 import "./globals.css";
 import React from "react";
-import PWAInstallPrompt from "../components/PWAInstallPrompt";
+import ClientOnlyPWA from "../components/ClientOnlyPWA";
 
 export const metadata = {
   title: "Cash Earn - Play and Earn Coins",
   description: "Complete Tasks, Claim Rewards and Withdraw Coins securely with our automated rewarding system.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Cash Earn",
+  },
+};
+
+export const viewport = {
+  themeColor: "#F59E0B",
+  width: "device-width",
+  initialScale: 1.0,
 };
 
 export default function RootLayout({
@@ -14,18 +26,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#F59E0B" />
-        <link rel="apple-touch-icon" href="/icon.svg" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-      </head>
       <body>
         {children}
-        <PWAInstallPrompt />
+        <ClientOnlyPWA />
       </body>
     </html>
   );
 }
+
+
