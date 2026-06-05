@@ -26,7 +26,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
           cache: npm
 
       - name: Setup GitHub Pages Config
@@ -36,8 +36,8 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          rm -f package-lock.json
-          npm install
+          rm -rf node_modules package-lock.json
+          npm install --include=optional
 
       - name: Build Next.js App
         run: npm run build
