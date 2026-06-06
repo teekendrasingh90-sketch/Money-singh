@@ -5,7 +5,6 @@ const nextConfig = {
     unoptimized: true,
   },
   output: "export",
-  distDir: "www",
 };
 
 export default nextConfig;

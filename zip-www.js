@@ -100,6 +100,16 @@ function makePathsRelative(dir) {
 }
 
 try {
+  // If 'out' directory exists (Next.js default export folder), move it to './www'
+  if (fs.existsSync('./out')) {
+    console.log("Found 'out' directory from static export. Moving it to './www'...");
+    if (fs.existsSync('./www')) {
+      fs.rmSync('./www', { recursive: true, force: true });
+    }
+    fs.renameSync('./out', './www');
+    console.log("Successfully moved 'out' directory to './www'.");
+  }
+
   console.log("Preparing AppsGeyser relative-path optimizations inside a temporary folder...");
   const tempDir = './www-temp';
   if (fs.existsSync(tempDir)) {
