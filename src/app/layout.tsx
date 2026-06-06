@@ -5,7 +5,7 @@ import ClientOnlyPWA from "../components/ClientOnlyPWA";
 export const metadata = {
   title: "Cash Earn - Play and Earn Coins",
   description: "Complete Tasks, Claim Rewards and Withdraw Coins securely with our automated rewarding system.",
-  manifest: "/manifest.json",
+  manifest: "manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -26,6 +26,22 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.deferredPWAEvent = null;
+              window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                window.deferredPWAEvent = e;
+                if (window.onPWAEventCaptured) {
+                  window.onPWAEventCaptured(e);
+                }
+              });
+            `
+          }}
+        />
+      </head>
       <body>
         {children}
         <ClientOnlyPWA />
