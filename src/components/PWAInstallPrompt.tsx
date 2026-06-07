@@ -194,35 +194,35 @@ export default function PWAInstallPrompt() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.92, opacity: 0 }}
               transition={{ type: "spring", duration: 0.35 }}
-              className="w-full max-w-md bg-[#0f172a] border border-slate-800 rounded-3xl p-6 shadow-[0_20px_50px_rgba(0,0,0,0.6)] flex flex-col gap-5 text-left"
+              className="w-full max-w-lg bg-[#0f172a] border border-slate-800 rounded-3xl p-8 shadow-[0_20px_60px_rgba(0,0,0,0.7)] flex flex-col gap-6 text-left"
               id="pwa-normal-prompt"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Top row: Icon, App Name & Simple details */}
-              <div className="flex items-start gap-4 text-left text-white">
-                <div className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center p-0.5 border border-slate-800 shadow-md shrink-0">
+              <div className="flex items-start gap-5 text-left text-white">
+                <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center p-0.5 border border-slate-800 shadow-md shrink-0">
                   <img src="icon.svg" alt="Cash Earn" className="w-full h-full rounded-2xl object-cover" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="text-base font-extrabold text-white font-sans tracking-wide">
-                    Install Cash Earn App
+                  <h4 className="text-lg font-extrabold text-white font-sans tracking-wide pt-0.5">
+                    MONEY
                   </h4>
-                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                  <p className="text-sm text-slate-400 mt-1.5 leading-relaxed">
                     Play tasks, claim daily bonus and withdraw your rewards securely directly from your phone desk.
                   </p>
                 </div>
                 <button 
                   onClick={() => handleDismiss()}
-                  className="p-1.5 hover:bg-slate-800 rounded-full text-slate-500 hover:text-white transition-colors cursor-pointer shrink-0"
+                  className="p-1.5 hover:bg-slate-850 rounded-full text-slate-500 hover:text-white transition-colors cursor-pointer shrink-0 mt-0.5"
                   title="Dismiss"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Special Instructions for iPhone/Safari */}
               {isIOS && downloadState === "idle" && (
-                <div className="text-left bg-slate-900/40 p-3.5 rounded-xl border border-slate-800/60 text-xs text-slate-300">
+                <div className="text-left bg-slate-900/40 p-4 rounded-xl border border-slate-800/60 text-xs text-slate-300">
                   <p className="font-bold text-amber-500 mb-1 flex items-center gap-1">
                     <Share className="w-3.5 h-3.5 inline" /> Apple Safari Setup:
                   </p>
@@ -232,7 +232,7 @@ export default function PWAInstallPrompt() {
 
               {/* UI for standard downloading state */}
               {downloadState === "downloading" && (
-                <div className="bg-slate-950/70 border border-slate-800/80 p-4 rounded-2xl flex flex-col gap-2.5 text-left">
+                <div className="bg-slate-950/70 border border-slate-800/80 p-5 rounded-2xl flex flex-col gap-3 text-left">
                   <div className="flex justify-between items-center text-xs text-amber-400 font-bold">
                     <span>📥 Downloading App Components...</span>
                     <span>{downloadProgress}%</span>
@@ -252,7 +252,7 @@ export default function PWAInstallPrompt() {
                 <motion.div 
                   initial={{ scale: 0.95, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  className="bg-green-950/30 border border-green-800/40 p-3.5 rounded-2xl flex items-center justify-center gap-2.5 text-green-400 text-xs font-extrabold text-center"
+                  className="bg-green-950/30 border border-green-800/40 p-4 rounded-2xl flex items-center justify-center gap-2.5 text-green-400 text-xs font-extrabold text-center"
                 >
                   <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0" />
                   App package downloaded successfully!
@@ -261,10 +261,10 @@ export default function PWAInstallPrompt() {
 
               {/* Simple classic buttons row: visible only during idle state */}
               {downloadState === "idle" && (
-                <div className="flex gap-3">
+                <div className="flex gap-4">
                   <button
                     onClick={() => handleDismiss()}
-                    className="w-1/2 py-3 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800/80 font-bold rounded-xl text-xs transition-colors cursor-pointer"
+                    className="w-1/2 py-3 bg-slate-900 hover:bg-slate-810 text-slate-300 border border-slate-800/80 font-bold rounded-xl text-xs transition-colors cursor-pointer"
                     id="btn-dismiss-pwa"
                   >
                     Not Now
@@ -275,8 +275,8 @@ export default function PWAInstallPrompt() {
                     className="w-1/2 py-3 bg-white hover:bg-slate-100 text-slate-950 font-black rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-lg transition-all cursor-pointer"
                     id="btn-install-pwa"
                   >
-                    <Download className="w-3.5 h-3.5 stroke-[2.5]" strokeWidth={2.5} />
-                    {isInIframe ? "Launch App" : "Install Now"}
+                    <Download className="w-4 h-4 stroke-[2.5]" strokeWidth={2.5} />
+                    Download App
                   </button>
                 </div>
               )}
