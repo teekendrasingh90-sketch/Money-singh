@@ -261,22 +261,22 @@ export default function PWAInstallPrompt() {
 
               {/* Simple classic buttons row: visible only during idle state */}
               {downloadState === "idle" && (
-                <div className="flex gap-4">
+                <div className="flex flex-col gap-3 w-full">
                   <button
-                    onClick={() => handleDismiss()}
-                    className="w-1/2 py-3 bg-slate-900 hover:bg-slate-810 text-slate-300 border border-slate-800/80 font-bold rounded-xl text-xs transition-colors cursor-pointer"
-                    id="btn-dismiss-pwa"
+                    onClick={handleInstallClick}
+                    className="w-full py-4 bg-white hover:bg-slate-100 text-slate-950 font-black rounded-2xl text-sm flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(255,255,255,0.15)] hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer"
+                    id="btn-install-pwa"
                   >
-                    Not Now
+                    <Download className="w-5 h-5 stroke-[2.5]" strokeWidth={2.5} />
+                    Download & Install Money App
                   </button>
 
                   <button
-                    onClick={handleInstallClick}
-                    className="w-1/2 py-3 bg-white hover:bg-slate-100 text-slate-950 font-black rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-lg transition-all cursor-pointer"
-                    id="btn-install-pwa"
+                    onClick={() => handleDismiss()}
+                    className="w-full py-2.5 bg-transparent hover:bg-slate-900/60 text-slate-400 hover:text-slate-300 font-bold rounded-xl text-xs transition-colors cursor-pointer text-center"
+                    id="btn-dismiss-pwa"
                   >
-                    <Download className="w-4 h-4 stroke-[2.5]" strokeWidth={2.5} />
-                    Download App
+                    Not Now
                   </button>
                 </div>
               )}
