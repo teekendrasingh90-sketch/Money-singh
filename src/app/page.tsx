@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
+import AuthPage from "../components/AuthPage";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const COIN_VALUE = 0.0012; // 1 coin = ₹0.0012
@@ -3631,23 +3632,92 @@ function WalletPage({ coins, setCoins, showToast, txns, setTxns }: WalletPagePro
 // ─── Leaderboard Page ─────────────────────────────────────────────────────────
 interface LeaderboardPageProps {
   coins: number;
+  userName?: string;
 }
 
-function LeaderboardPage({ coins }: LeaderboardPageProps) {
-  const halfHourIndex = Math.floor(Date.now() / (30 * 60 * 1000)) % NAME_POOLS.length;
-  const currentPool = NAME_POOLS[halfHourIndex];
+function LeaderboardPage({ coins, userName }: LeaderboardPageProps) {
+  // Generate 1000 competitors + the user
+  const board = React.useMemo(() => {
+    const competitors: LeaderboardUser[] = [];
+    
+    // First names / last names pools for realistic random generation
+    const firstNames = ["Amit", "Pooja", "Rahul", "Priya", "Deepak", "Anjali", "Vikram", "Sneha", "Suresh", "Kajal", "Rajat", "Preeti", "Manish", "Divya", "Sandeep", "Aman", "Neha", "Vijay", "Aarav", "Rohan", "Kabir", "Aditya", "Ishaan", "Arjun", "Siddharth", "Yash", "Karan", "Nikhil", "Shreya", "Riya", "Ridhi", "Anushka", "Simran", "Tanya", "Jatin", "Rohit", "Vivek", "Sanjay", "Kiran", "Tarun", "Kartik", "Meera", "Abhishek", "Harsh", "Sumit", "Lokesh", "Mohit", "Pankaj"];
+    const lastNames = ["Sharma", "Verma", "Kushwaha", "Mishra", "Yadav", "Singh", "Rathore", "Goel", "Chaudhary", "Jha", "Gupta", "Sahni", "Solanki", "Trivedi", "Bisht", "Saini", "Tomar", "Rawat", "Sehgal", "Dwivedi", "Kumar", "Patel", "Reddy", "Mehta", "Joshi", "Rao", "Nair", "Pandey", "Shukla", "Deshmukh", "Chawla", "Bhasin", "Malhotra", "Kapoor", "Grover", "Taneja", "Suri", "Sen", "Roy", "Basu", "Dutta", "Das", "Banerjee", "Chatterjee", "Mukherjee"];
+    const avatars = ["😊", "😎", "🦊", "🦁", "🐼", "🤖", "🚀", "⚡", "🎮", "👾", "🔥", "🦄", "🦅", "🐱", "🐶", "🐯", "🐧"];
 
-  const board = [
-    ...currentPool.map((p) => ({
-      name: p.name,
-      avatar: p.avatar,
-      coins: p.baseCoins + (Math.floor(Date.now() / 60000) % 30) * 12, // subtle variation
-      isUser: false
-    })),
-    { name: "You", avatar: "⭐", coins: coins, isUser: true }
-  ]
-  .sort((a, b) => b.coins - a.coins)
-  .map((l, i) => ({ ...l, rank: i + 1 }));
+    // Use current hour as part of seed so the leaderboard has small active shifts
+    const hour = typeof window !== "undefined" ? new Date().getHours() : 12;
+    
+    for (let i = 0; i < 999; i++) {
+      // Deterministic coins mapping from top (120,000) down to low (50)
+      // Exponential transition
+      const baseCoins = Math.floor(135000 * Math.pow(0.9932, i) + 50);
+      
+      // Let's add minor deterministic fluctuation based on hour and index to make them look active
+      const hashChange = Math.sin(i * 4.567 + hour) * (45 * (999 - i) / 999);
+      const competitorCoins = Math.max(10, Math.floor(baseCoins + hashChange));
+      
+      const name = `${firstNames[i % firstNames.length]} ${lastNames[(i * 3) % lastNames.length]}`;
+      const avatar = i === 0 ? "👑" : i === 1 ? "🥈" : i === 2 ? "🥉" : avatars[i % avatars.length];
+      
+      competitors.push({
+        name,
+        avatar,
+        coins: competitorCoins,
+        isUser: false
+      });
+    }
+    
+    // Add real current user
+    competitors.push({
+      name: userName || "Aap Ka Naam",
+      avatar: "⭐",
+      coins: coins,
+      isUser: true
+    });
+    
+    // Sort descending by coins
+    const sorted = [...competitors].sort((a, b) => b.coins - a.coins);
+    
+    // Map with absolute 1-indexed ranks
+    return sorted.map((u, index) => ({
+      ...u,
+      rank: index + 1
+    }));
+  }, [coins, userName]);
+
+  // Find user details and rank index in the 1000 items
+  const userRankObj = board.find(u => u.isUser);
+  const userRank = userRankObj ? userRankObj.rank : 1000;
+
+  // Let's optimize rendering list:
+  // Render top 20 ranks.
+  // And if user is ranked further down (> 20), we render separator and user dynamic neighborhood: [userRank - 2, userRank - 1, user, userRank + 1, userRank + 2]
+  const renderedList = React.useMemo(() => {
+    const list: typeof board = [];
+    
+    // Add top 20
+    for (let i = 0; i < Math.min(20, board.length); i++) {
+      list.push(board[i]);
+    }
+    
+    // Check if user is outside top 20
+    if (userRank > 20) {
+      // We will inject a visual separator placeholder element
+      const startNeighbor = Math.max(20, userRank - 3); // 0-indexed index is userRank - 4
+      const endNeighbor = Math.min(board.length - 1, userRank + 2); // 0-indexed index up to userRank + 2
+      
+      for (let i = startNeighbor; i <= endNeighbor; i++) {
+        if (!list.some(item => item.rank === board[i].rank)) {
+          list.push(board[i]);
+        }
+      }
+    }
+    return list;
+  }, [board, userRank]);
+
+  // Podium Users (Top 3 on the actual sorting rank)
+  const podium = [board[1], board[0], board[2]].filter(Boolean);
 
   return (
     <div className="page">
@@ -3656,27 +3726,34 @@ function LeaderboardPage({ coins }: LeaderboardPageProps) {
           🏆 Leaderboard
         </div>
         <div style={{ fontSize: 13, color: "var(--muted2)", marginTop: 4 }}>
-          Top earners this week
+          Live dynamic list of 1,000 customers. Your rank progresses as your coin balance climbs!
         </div>
       </div>
 
       {/* Top 3 podium */}
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 12, padding: "16px 20px", marginBottom: 8 }}>
-        {[board[1], board[0], board[2]].filter(Boolean).map((p, i) => {
+        {podium.map((p, i) => {
           const heights = [100, 120, 80];
           const colors = ["#94A3B8", "#F59E0B", "#D97706"];
+          const originalRank = [2, 1, 3][i];
+          const displayName = p.isUser ? `${p.name} (You)` : p.name;
           return (
             <div key={p.rank} style={{ textAlign: "center", flex: i === 1 ? 1.2 : 1 }}>
               <div style={{ fontSize: 24, marginBottom: 6 }}>{p.avatar}</div>
-              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{p.name}</div>
+              <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 6, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100px", margin: "0 auto" }} title={displayName}>
+                {p.isUser ? "You ⭐" : p.name.split(" ")[0]}
+              </div>
               <div style={{
                 height: heights[i], background: `${colors[i]}20`,
                 border: `2px solid ${colors[i]}40`,
-                borderRadius: "12px 12px 0 0", display: "flex", alignItems: "flex-start",
-                justifyContent: "center", paddingTop: 8
+                borderRadius: "12px 12px 0 0", display: "flex", flexDirection: "column", alignItems: "center",
+                justifyContent: "center", padding: "8px 4px 6px"
               }}>
-                <span style={{ fontFamily: "Rajdhani", fontSize: 20, fontWeight: 700, color: colors[i] }}>
-                  #{[2, 1, 3][i]}
+                <span style={{ fontFamily: "Rajdhani", fontSize: 22, fontWeight: 800, color: colors[i] }}>
+                  #{originalRank}
+                </span>
+                <span style={{ fontSize: 9, color: "var(--muted2)", marginTop: 4 }}>
+                  {p.coins.toLocaleString()}
                 </span>
               </div>
             </div>
@@ -3684,19 +3761,48 @@ function LeaderboardPage({ coins }: LeaderboardPageProps) {
         })}
       </div>
 
-      <div className="section">
-        {board.map(p => (
-          <div key={p.rank} className={`leaderboard-item ${p.isUser ? "you" : ""}`}>
-            <div className="rank-badge">
-              {p.rank === 1 ? "🥇" : p.rank === 2 ? "🥈" : p.rank === 3 ? "🥉" : `#${p.rank}`}
-            </div>
-            <div className="lb-avatar">{p.avatar}</div>
-            <div className="lb-name">
-              {p.name} {p.isUser && <span style={{ fontSize: 11, color: "var(--gold)", marginLeft: 4 }}>(You)</span>}
-            </div>
-            <div className="lb-coins">🪙 {p.coins.toLocaleString()}</div>
+      {/* Your current standing info widget */}
+      <div style={{ margin: "0 16px 14px", padding: "14px", background: "rgba(245,158,11,0.08)", border: "1px dashed rgba(245,158,11,0.3)", borderRadius: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
+          <div style={{ fontSize: "11px", color: "var(--muted2)", textTransform: "uppercase", letterSpacing: "1px" }}>Your Live Position</div>
+          <div style={{ fontSize: "16px", fontWeight: "bold", color: "#fff", marginTop: "2px" }}>
+            {userName || "Aap Ka Naam"}
           </div>
-        ))}
+        </div>
+        <div style={{ textAlign: "right" }}>
+          <div style={{ fontSize: "11px", color: "var(--muted2)" }}>Dynamic Rank</div>
+          <div style={{ fontFamily: "Rajdhani, sans-serif", fontSize: "24px", fontWeight: "900", color: "var(--gold)" }}>
+            #{userRank.toLocaleString()} <span style={{ fontSize: "12px", color: "var(--muted2)", fontWeight: "normal" }}>/ 1,000</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="section">
+        {renderedList.map((p, index) => {
+          // Check if we need to render a gap indicator before this item
+          const showGap = index > 0 && p.rank - renderedList[index - 1].rank > 1;
+          return (
+            <React.Fragment key={p.rank}>
+              {showGap && (
+                <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "10px 0", gap: "8px" }}>
+                  <div style={{ height: "1px", flex: 1, background: "var(--border)" }}></div>
+                  <span style={{ fontSize: "11px", color: "var(--muted)", fontWeight: "bold", letterSpacing: "3px" }}>•••</span>
+                  <div style={{ height: "1px", flex: 1, background: "var(--border)" }}></div>
+                </div>
+              )}
+              <div className={`leaderboard-item ${p.isUser ? "you" : ""}`}>
+                <div className="rank-badge">
+                  {p.rank === 1 ? "🥇" : p.rank === 2 ? "🥈" : p.rank === 3 ? "🥉" : `#${p.rank}`}
+                </div>
+                <div className="lb-avatar">{p.avatar}</div>
+                <div className="lb-name">
+                  {p.name} {p.isUser && <span style={{ fontSize: 11, color: "var(--gold)", marginLeft: 4 }}>(You)</span>}
+                </div>
+                <div className="lb-coins">🪙 {p.coins.toLocaleString()}</div>
+              </div>
+            </React.Fragment>
+          );
+        })}
       </div>
     </div>
   );
@@ -3710,9 +3816,11 @@ interface ProfilePageProps {
   setCoins: React.Dispatch<React.SetStateAction<number>>;
   setTxns: React.Dispatch<React.SetStateAction<Transaction[]>>;
   showToast: (msg: string) => void;
+  currentUser: { name: string; email: string } | null;
+  onLogout: () => void;
 }
 
-function ProfilePage({ coins, txns, onClose, setCoins, setTxns, showToast }: ProfilePageProps) {
+function ProfilePage({ coins, txns, onClose, setCoins, setTxns, showToast, currentUser, onLogout }: ProfilePageProps) {
   const balance = (coins * COIN_VALUE).toFixed(2);
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -3756,8 +3864,8 @@ function ProfilePage({ coins, txns, onClose, setCoins, setTxns, showToast }: Pro
       </div>
       <div className="profile-hero">
         <div className="profile-avatar">👤</div>
-        <div className="profile-name">Aap Ka Naam</div>
-        <div style={{ color: "var(--muted2)", fontSize: 13, marginTop: 4 }}>user@example.com</div>
+        <div className="profile-name">{currentUser?.name || "Aap Ka Naam"}</div>
+        <div style={{ color: "var(--muted2)", fontSize: 13, marginTop: 4 }}>{currentUser?.email || "user@example.com"}</div>
         <div className="profile-level">⭐ Silver Member</div>
         <div className="profile-stats">
           {[
@@ -3793,10 +3901,17 @@ function ProfilePage({ coins, txns, onClose, setCoins, setTxns, showToast }: Pro
           { icon: "📊", label: "Earning History", bg: "rgba(16,185,129,0.12)", type: "history" },
           { icon: "💬", label: "Support", bg: "rgba(139,92,246,0.12)", type: "support" },
           { icon: "📜", label: "Terms & Privacy", bg: "rgba(100,116,139,0.12)", type: "terms" },
+          { icon: "🚪", label: "Log Out Account", bg: "rgba(239,68,68,0.12)", type: "logout" },
         ].map((m, i) => (
-          <div key={i} className="menu-item" onClick={() => setActiveModal(m.type)}>
+          <div key={i} className="menu-item" onClick={() => {
+            if (m.type === "logout") {
+              onLogout();
+            } else {
+              setActiveModal(m.type);
+            }
+          }}>
             <div className="menu-icon" style={{ background: m.bg }}>{m.icon}</div>
-            <div className="menu-label">{m.label}</div>
+            <div className="menu-label" style={{ color: m.type === "logout" ? "var(--red)" : "inherit" }}>{m.label}</div>
             <div className="menu-arrow">›</div>
           </div>
         ))}
@@ -3887,13 +4002,16 @@ function ProfilePage({ coins, txns, onClose, setCoins, setTxns, showToast }: Pro
 
 // ─── Root App ─────────────────────────────────────────────────────────────────
 export default function App() {
+  const [currentUser, setCurrentUser] = useState<{ name: string; email: string } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isHydrated, setIsHydrated] = useState(false);
   const [tab, setTab] = useState("earn");
-  const [coins, setCoins] = useState(1250);
+  const [coins, setCoins] = useState(1000);
   const [adsWatched, setAdsWatched] = useState(0);
   const [checkinDone, setCheckinDone] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<NodeJS.Timeout | null>(null);
-  const [txns, setTxns] = useState<Transaction[]>(TRANSACTIONS);
+  const [txns, setTxns] = useState<Transaction[]>([]);
   const [showProfile, setShowProfile] = useState(false);
 
   const showToast = (msg: string) => {
@@ -3902,11 +4020,116 @@ export default function App() {
     toastTimer.current = setTimeout(() => setToast(null), 2500);
   };
 
+  // Mount Effect: Restore login session or set default
+  useEffect(() => {
+    try {
+      const activeEmail = localStorage.getItem("current_session_email");
+      if (activeEmail) {
+        const rawUsers = localStorage.getItem("money_app_users");
+        const users = rawUsers ? JSON.parse(rawUsers) : [];
+        const user = users.find((u: any) => u.email.toLowerCase() === activeEmail.toLowerCase());
+        if (user) {
+          setCurrentUser({ name: user.name, email: user.email });
+          setCoins(user.coins);
+          setAdsWatched(user.adsWatched || 0);
+          setCheckinDone(user.checkinDone || false);
+          setTxns(user.txns || []);
+        } else {
+          localStorage.removeItem("current_session_email");
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsHydrated(true);
+      setLoading(false);
+    }
+  }, []);
+
+  // Sync state shifts back to general users storage
+  useEffect(() => {
+    if (loading || !currentUser || !isHydrated) return;
+    try {
+      const rawUsers = localStorage.getItem("money_app_users");
+      const users = rawUsers ? JSON.parse(rawUsers) : [];
+      let updatedUserFound = false;
+      
+      const updated = users.map((u: any) => {
+        if (u.email.toLowerCase() === currentUser.email.toLowerCase()) {
+          updatedUserFound = true;
+          return {
+            ...u,
+            coins,
+            adsWatched,
+            checkinDone,
+            txns,
+            lastSavedAt: new Date().toISOString()
+          };
+        }
+        return u;
+      });
+
+      if (updatedUserFound) {
+        localStorage.setItem("money_app_users", JSON.stringify(updated));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, [coins, adsWatched, checkinDone, txns, currentUser, isHydrated, loading]);
+
+  const handleLoginSuccess = (user: any) => {
+    setIsHydrated(false); // Instantly block sync while states update
+    localStorage.setItem("current_session_email", user.email);
+    setCurrentUser({ name: user.name, email: user.email });
+    setCoins(user.coins);
+    setAdsWatched(user.adsWatched || 0);
+    setCheckinDone(user.checkinDone || false);
+    setTxns(user.txns || []);
+    
+    // Release lock once all state hooks have batched and rendered safely
+    setTimeout(() => {
+      setIsHydrated(true);
+    }, 100);
+
+    showToast(`👋 Welcome back, ${user.name}!`);
+  };
+
+  const handleLogout = () => {
+    setIsHydrated(false); // Instantly lock sync to prevent blank/initial states overwrite
+    localStorage.removeItem("current_session_email");
+    setCurrentUser(null);
+    setCoins(1000);
+    setAdsWatched(0);
+    setCheckinDone(false);
+    setTxns([]);
+    setShowProfile(false);
+    showToast("🚪 Session Logged Out successfully!");
+  };
+
   const navItems = [
     { id: "wallet", icon: "💳", label: "Wallet" },
     { id: "earn", icon: "🪙", label: "Earn", isCenter: true },
     { id: "board", icon: "🏆", label: "Ranks" },
   ];
+
+  if (loading) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", height: "100vh", alignItems: "center", justifyContent: "center", background: "#080C14", color: "var(--muted2)" }}>
+        <div style={{ fontSize: 40 }} className="animate-spin">🔄</div>
+        <div style={{ marginTop: 16 }}>Loading Money App...</div>
+      </div>
+    );
+  }
+
+  // Not logged in -> Render Auth Page
+  if (!currentUser) {
+    return (
+      <>
+        {toast && <div className="toast" style={{ zIndex: 9999 }}>{toast}</div>}
+        <AuthPage onLoginSuccess={handleLoginSuccess} />
+      </>
+    );
+  }
 
   return (
     <>
@@ -3935,7 +4158,7 @@ export default function App() {
         ) : tab === "wallet" ? (
           <WalletPage coins={coins} setCoins={setCoins} showToast={showToast} txns={txns} setTxns={setTxns} />
         ) : (
-          <LeaderboardPage coins={coins} />
+          <LeaderboardPage coins={coins} userName={currentUser.name} />
         )}
 
         {/* Fullscreen Profile Overlay inside standard app framework */}
@@ -3948,7 +4171,7 @@ export default function App() {
             overflowY: "auto",
             paddingBottom: "80px"
           }}>
-            <ProfilePage coins={coins} txns={txns} onClose={() => setShowProfile(false)} setCoins={setCoins} setTxns={setTxns} showToast={showToast} />
+            <ProfilePage coins={coins} txns={txns} onClose={() => setShowProfile(false)} setCoins={setCoins} setTxns={setTxns} showToast={showToast} currentUser={currentUser} onLogout={handleLogout} />
           </div>
         )}
 
