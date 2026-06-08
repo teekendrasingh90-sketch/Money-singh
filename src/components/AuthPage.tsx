@@ -195,15 +195,17 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
       <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
         
         {/* Brand & Rupee Logo Area */}
-        <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-gradient-to-br from-amber-500 to-yellow-400 rounded-3xl mx-auto flex items-center justify-center shadow-lg border border-yellow-300/20 mb-4 animate-pulse">
-            <span className="text-4xl font-black text-[#080C14]">₹</span>
-          </div>
-          <h2 className="text-3xl font-extrabold tracking-wider font-sans bg-gradient-to-r from-amber-400 to-yellow-300 bg-clip-text text-transparent">
-            MONEY
+        <div className="text-center mb-6">
+          <img 
+            src="icon.svg" 
+            alt="Money App Logo" 
+            className="w-28 h-28 mx-auto rounded-3xl shadow-2xl border border-slate-800/80 mb-3"
+          />
+          <h2 className="text-3xl font-semibold tracking-wider font-sans text-amber-400">
+            Money
           </h2>
-          <p className="text-xs text-slate-400 tracking-widest uppercase mt-1">
-            Watch Ads · Earn Cash
+          <p className="text-xs text-slate-450 tracking-widest uppercase mt-1">
+            SMART · SIMPLE · SAFE
           </p>
         </div>
 

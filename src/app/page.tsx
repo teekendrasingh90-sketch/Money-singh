@@ -4181,7 +4181,10 @@ export default function App() {
       <div className="app">
         {/* Header */}
         <div className="header">
-          <div className="header-logo">Mon<span>ey</span></div>
+          <div className="header-logo" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <img src="icon.svg" alt="App Coin Logo" style={{ width: "28px", height: "28px", borderRadius: "8px" }} />
+            Mon<span>ey</span>
+          </div>
           <div className="header-right">
             <div className="avatar-btn" onClick={() => setShowProfile(true)} style={{ cursor: "pointer" }}>👤</div>
           </div>
