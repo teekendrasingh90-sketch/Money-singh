@@ -3591,6 +3591,28 @@ function WalletPage({ coins, setCoins, showToast, txns, setTxns }: WalletPagePro
         </button>
       </div>
 
+      {/* Device Storage Status Bar */}
+      <div style={{
+        margin: "12px 16px",
+        background: "rgba(16,185,129,0.06)",
+        border: "1px solid rgba(16,185,129,0.18)",
+        borderRadius: "14px",
+        padding: "12px 14px",
+        display: "flex",
+        alignItems: "flex-start",
+        gap: "10px"
+      }}>
+        <div style={{ fontSize: "20px" }}>💾</div>
+        <div>
+          <div style={{ fontSize: "12px", color: "rgba(16,185,129,1)", fontWeight: "bold", letterSpacing: "0.5px" }}>
+            मोबाइल स्टोरेज में सुरक्षित • Saved to Phone Storage
+          </div>
+          <div style={{ fontSize: "11px", color: "var(--muted2)", marginTop: "4px", lineHeight: "1.4" }}>
+            आपका बैलेंस (₹{balance.toFixed(2)}), कॉइन इतिहास और निकासी रिकॉर्ड्स इस मोबाइल के सुरक्षित लोकल स्टोरेज में सेव्ड हैं। यह हमेशा यहाँ सुरक्षित रहेंगे जब तक आप लॉग-आउट नहीं करते या ऐप डिलीट नहीं करते।
+          </div>
+        </div>
+      </div>
+
       {/* Transactions */}
       <div className="section">
         <div className="section-header">
@@ -3878,6 +3900,28 @@ function ProfilePage({ coins, txns, onClose, setCoins, setTxns, showToast, curre
               <div className="profile-stat-lbl">{s.l}</div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Device Storage Status Bar */}
+      <div style={{
+        margin: "12px 16px",
+        background: "rgba(16,185,129,0.06)",
+        border: "1px solid rgba(16,185,129,0.18)",
+        borderRadius: "14px",
+        padding: "12px 14px",
+        display: "flex",
+        alignItems: "flex-start",
+        gap: "10px"
+      }}>
+        <div style={{ fontSize: "20px" }}>💾</div>
+        <div>
+          <div style={{ fontSize: "12px", color: "rgba(16,185,129,1)", fontWeight: "bold", letterSpacing: "0.5px" }}>
+            डेटा ऑटो-बैकअप • Safe Phone Storage
+          </div>
+          <div style={{ fontSize: "11px", color: "var(--muted2)", marginTop: "4px", lineHeight: "1.4" }}>
+            आपका अकाउंट ईमेल (<strong>{currentUser?.email}</strong>), सिक्के और निकासी से जुड़ा सारा रिकॉर्ड इस फोन में आटोमैटिक और ऑफलाइन सुरक्षित सेव्ड है। आप बिल्कुल बेफिक्र होकर मोबाइल डेटा या वाई-फाई का उपयोग करें।
+          </div>
         </div>
       </div>
 
