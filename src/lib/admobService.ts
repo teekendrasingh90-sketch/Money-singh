@@ -9,8 +9,8 @@ export class AdMobService {
   private static isInitialized = false;
   private static activeListeners: any[] = [];
 
-  // AdMob Test Unit ID for Rewarded Ads
-  public static REWARD_AD_UNIT_ID = 'ca-app-pub-3940256099942544/5354046379';
+  // AdMob Custom Live Unit ID for Rewarded Ads
+  public static REWARD_AD_UNIT_ID = 'ca-app-pub-1741947856013956/5702516294';
 
   /**
    * Helper to determine if we are running in a native webview under Android or iOS.
@@ -33,7 +33,7 @@ export class AdMobService {
     try {
       const { AdMob } = await import('@capacitor-community/admob');
       await AdMob.initialize({
-        initializeForTesting: true,
+        initializeForTesting: false,
       });
       this.isInitialized = true;
       console.log('AdMob SDK: Native SDK initialized successfully.');
@@ -151,7 +151,7 @@ export class AdMobService {
       console.log('AdMob SDK: Preparing rewarded ad options with unit ID:', this.REWARD_AD_UNIT_ID);
       await AdMob.prepareRewardVideoAd({
         adId: this.REWARD_AD_UNIT_ID,
-        isTesting: true,
+        isTesting: false,
       });
 
       // Show/Display Ad

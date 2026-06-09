@@ -2,5 +2,10 @@
   "appId": "com.admob.cashearn",
   "appName": "AdMob Cash Earn",
   "webDir": "www",
-  "bundledWebRuntime": false
+  "bundledWebRuntime": false,
+  "plugins": {
+    "AdMob": {
+      "appId": "ca-app-pub-1741947856013956~7127615315"
+    }
+  }
 }

@@ -1570,7 +1570,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                   maxWidth: "320px",
                   wordBreak: "break-all"
                 }}>
-                  <div>Test Unit ID: ca-app-pub-3940256099942544/5354046379</div>
+                  <div>Ad Unit ID: ca-app-pub-1741947856013956/5702516294</div>
                   <div style={{ marginTop: 2, color: "#94A3B8" }}>Environment: {AdMobService.isNative() ? "🤖 Android Hybrid App" : "🌐 Browser Sandbox (Simulator Ready)"}</div>
                 </div>
               </div>
@@ -1738,7 +1738,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                 alignItems: "center",
                 gap: "5px"
               }}>
-                📢 GOOGLE ADMOB AD ACTIVE (APP ID: ca-app-pub-1741947856013956~9733783734 | UNIT ID: ca-app-pub-1741947856013956/8677898539)
+                📢 GOOGLE ADMOB AD ACTIVE (APP ID: ca-app-pub-1741947856013956~7127615315 | UNIT ID: ca-app-pub-1741947856013956/5702516294)
               </div>
 
               <div style={{ flex: 1, position: "relative", width: "100%", height: "100%", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -1988,8 +1988,8 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                   lineHeight: "1.2"
                 }}>
                   <span style={{ color: "var(--gold)", fontWeight: "bold" }}>Google AdMob Rewarded Video</span>
-                  <span>App ID: ca-app-pub-1741947856013956~9733783734</span>
-                  <span>Unit ID: ca-app-pub-1741947856013956/8677898539</span>
+                  <span>App ID: ca-app-pub-1741947856013956~7127615315</span>
+                  <span>Unit ID: ca-app-pub-1741947856013956/5702516294</span>
                 </div>
 
                 {/* Bottom Progress Bar overlay */}
@@ -2183,7 +2183,7 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
 
   useEffect(() => {
     if (step === "watching_ad") {
-      console.log("AdMob SDK Interstitial Loaded successfully for Captcha reward verifying. App ID: ca-app-pub-1741947856013956~9733783734, Ad Unit: ca-app-pub-1741947856013956/8677898539");
+      console.log("AdMob SDK Interstitial Loaded successfully for Captcha reward verifying. App ID: ca-app-pub-1741947856013956~7127615315, Ad Unit: ca-app-pub-1741947856013956/5702516294");
     }
   }, [step]);
 
@@ -2332,7 +2332,7 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
                 textTransform: "uppercase",
                 fontFamily: "Rajdhani, sans-serif"
               }}>
-                📢 GOOGLE ADMOB AD ACTIVE (APP ID: ca-app-pub-1741947856013956~9733783734 | UNIT ID: ca-app-pub-1741947856013956/8677898539)
+                📢 GOOGLE ADMOB AD ACTIVE (APP ID: ca-app-pub-1741947856013956~7127615315 | UNIT ID: ca-app-pub-1741947856013956/5702516294)
               </div>
 
               {/* Video Player Gameplay container */}
@@ -2583,8 +2583,8 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
                   lineHeight: "1.2"
                 }}>
                   <span style={{ color: "var(--gold)", fontWeight: "bold" }}>Google AdMob Interstitial Ad</span>
-                  <span>App ID: ca-app-pub-1741947856013956~9733783734</span>
-                  <span>Unit ID: ca-app-pub-1741947856013956/8677898539</span>
+                  <span>App ID: ca-app-pub-1741947856013956~7127615315</span>
+                  <span>Unit ID: ca-app-pub-1741947856013956/5702516294</span>
                 </div>
 
                 {/* Progress bar */}
