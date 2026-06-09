@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import AuthPage from "../components/AuthPage";
+import { AdMobService } from "../lib/admobService";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const COIN_VALUE = 0.0012; // 1 coin = ₹0.0012
@@ -26,6 +27,7 @@ const TASKS: Task[] = [
   { id: 3, title: "Spin Wheel Quest", coins: 30, icon: "🎰", type: "spin_quest", time: "Instant", color: "#06B6D4" },
   { id: 4, title: "Captcha Solver", coins: 25, icon: "🛡️", type: "captcha", time: "Instant", color: "#10B981" },
   { id: 5, title: "Mega Tap Challenge", coins: 50, icon: "⚡", type: "mega_booster", time: "Instant", color: "#EF4444" },
+  { id: 6, title: "AdMob Rewarded Video", coins: 150, icon: "📺", type: "admob_reward", time: "15s-30s", color: "#EC4899" },
 ];
 
 interface LeaderboardUser {
@@ -1268,6 +1270,50 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
   const [playableScore, setPlayableScore] = useState(0);
   const [boosterTaps, setBoosterTaps] = useState(0);
 
+  const [admobLoading, setAdmobLoading] = useState(false);
+  const [admobError, setAdmobError] = useState("");
+
+  const handleWatchAdMob = async () => {
+    setAdmobLoading(true);
+    setAdmobError("");
+
+    try {
+      await AdMobService.loadAndShowRewardedAd(
+        (reward) => {
+          console.log("Success! Earned AdMob reward:", reward);
+          setAdmobLoading(false);
+          setElapsed(total);
+          setPhase("done");
+          onComplete(task.coins);
+        },
+        () => {
+          console.log("AdLoaded successfully.");
+        },
+        (error) => {
+          console.error("AdFailedToLoad:", error);
+          setAdmobError("Real Ad failed to load. Falling back to simulator mode...");
+          setAdmobLoading(false);
+          setPhase("watching");
+        },
+        (error) => {
+          console.error("AdFailedToShow:", error);
+          setAdmobError("Real Ad failed to show. Falling back to simulator mode...");
+          setAdmobLoading(false);
+          setPhase("watching");
+        },
+        () => {
+          console.log("Ad dismissed.");
+          setAdmobLoading(false);
+        }
+      );
+    } catch (e: any) {
+      console.error(e);
+      setAdmobError("AdMob initial load failed. Launching simulator video.");
+      setAdmobLoading(false);
+      setPhase("watching");
+    }
+  };
+
   useEffect(() => {
     if (phase !== "watching") {
       setVideoPlayFailed(false);
@@ -1438,6 +1484,83 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                   onClick={handleVerifyInstall}
                 >
                   🚀 Verify & Complete Task
+                </button>
+              </div>
+            </>
+          ) : task.type === "admob_reward" ? (
+            <>
+              <div className="modal-title" style={{ color: "#EC4899", display: "flex", alignItems: "center", gap: "6px" }}>
+                <span>{task.icon}</span> {task.title}
+              </div>
+              <div className="modal-sub">
+                Watch Official Google AdMob Video Ad
+              </div>
+
+              <div className="ad-screen" style={{ 
+                background: "linear-gradient(135deg, #090e1a 0%, #03050a 100%)", 
+                minHeight: "250px", 
+                position: "relative",
+                border: "1px solid rgba(236, 72, 153, 0.2)",
+                borderRadius: "12px",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                overflow: "hidden",
+                padding: "20px"
+              }}>
+                <div style={{ position: "absolute", width: "120px", height: "120px", background: "radial-gradient(circle, #ec4899 0%, transparent 70%)", filter: "blur(30px)", opacity: 0.25 }} />
+
+                <div style={{ fontSize: 50, marginBottom: 12, zIndex: 10 }}>📺</div>
+                <div style={{ fontWeight: 800, fontSize: 16, color: "#fff", zIndex: 10, fontFamily: "Rajdhani, sans-serif" }}>Google AdMob Rewarded Ad</div>
+                <div style={{ fontSize: 11, color: "#94A3B8", marginTop: 6, textAlign: "center", lineHeight: "1.5", maxWidth: "280px", zIndex: 10 }}>
+                  Load and watch the official AdMob test ad. Watching to completion unlocks <strong>150 Coins</strong>!
+                </div>
+
+                <div style={{ 
+                  background: "rgba(236, 72, 153, 0.1)", 
+                  border: "1px solid rgba(236, 72, 153, 0.2)", 
+                  padding: "8px 12px", 
+                  borderRadius: 8, 
+                  marginTop: 14, 
+                  fontSize: 9, 
+                  color: "#f472b6", 
+                  fontFamily: "monospace",
+                  textAlign: "center",
+                  zIndex: 10,
+                  maxWidth: "320px",
+                  wordBreak: "break-all"
+                }}>
+                  <div>Test Unit ID: ca-app-pub-3940256099942544/5354046379</div>
+                  <div style={{ marginTop: 2, color: "#94A3B8" }}>Environment: {AdMobService.isNative() ? "🤖 Android Hybrid App" : "🌐 Browser Sandbox (Simulator Ready)"}</div>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, width: "100%", marginTop: 15 }}>
+                {admobError && (
+                  <p style={{ color: "var(--red)", fontSize: 12, textAlign: "center", fontWeight: 600, margin: 0 }}>
+                    ⚠️ {admobError}
+                  </p>
+                )}
+
+                <button
+                  type="button"
+                  className="withdraw-btn-main"
+                  disabled={admobLoading}
+                  onClick={handleWatchAdMob}
+                  style={{
+                    background: "linear-gradient(135deg, #ec4899, #be185d)",
+                    color: "#fff",
+                    fontWeight: 800,
+                    cursor: admobLoading ? "not-allowed" : "pointer",
+                    opacity: admobLoading ? 0.75 : 1
+                  }}
+                >
+                  {admobLoading ? (
+                    <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      ⏳ Loading AdMob SDK Ad...
+                    </span>
+                  ) : "▶ Load & Watch video ad"}
                 </button>
               </div>
             </>
@@ -4047,7 +4170,7 @@ function ProfilePage({ coins, txns, onClose, setCoins, setTxns, showToast, curre
 // ─── Root App ─────────────────────────────────────────────────────────────────
 export default function App() {
   const [currentUser, setCurrentUser] = useState<{ name: string; email: string } | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
   const [tab, setTab] = useState("earn");
   const [coins, setCoins] = useState(1000);
@@ -4155,15 +4278,6 @@ export default function App() {
     { id: "earn", icon: "🪙", label: "Earn", isCenter: true },
     { id: "board", icon: "🏆", label: "Ranks" },
   ];
-
-  if (loading) {
-    return (
-      <div style={{ display: "flex", flexDirection: "column", height: "100vh", alignItems: "center", justifyContent: "center", background: "#080C14", color: "var(--muted2)" }}>
-        <div style={{ fontSize: 40 }} className="animate-spin">🔄</div>
-        <div style={{ marginTop: 16 }}>Loading Money App...</div>
-      </div>
-    );
-  }
 
   // Not logged in -> Render Auth Page
   if (!currentUser) {
