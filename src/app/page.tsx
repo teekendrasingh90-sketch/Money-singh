@@ -1249,6 +1249,32 @@ function TimerRing({ total, remaining, size = 80 }: TimerRingProps) {
   );
 }
 
+// Safe global 8-bit synthesiser synthesizer sound player helper
+const playAdSynthSound = (frequency: number, type: "sine" | "square" | "sawtooth" | "triangle" = "sine", duration: number = 0.1) => {
+  try {
+    if (typeof window === "undefined") return;
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.type = type;
+    osc.frequency.value = frequency;
+    
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  } catch (err) {
+    console.warn("Web Audio block:", err);
+  }
+};
+
 // ─── Ad Modal ─────────────────────────────────────────────────────────────────
 interface AdModalProps {
   task: Task;
@@ -1258,7 +1284,7 @@ interface AdModalProps {
 
 function AdModal({ task, onClose, onComplete }: AdModalProps) {
   const [phase, setPhase] = useState<"solving" | "watching" | "verifying" | "done">("solving");
-  const [timer] = useState(task.type === "video" || task.type === "rewarded" || task.type === "install" ? 15 : task.type === "combo" ? 25 : 10);
+  const [timer] = useState(task.type === "video" || task.type === "rewarded" || task.type === "install" || task.type === "admob_reward" ? 15 : task.type === "combo" ? 25 : 10);
   const total = timer;
   const [elapsed, setElapsed] = useState(0);
   const [clickedLink, setClickedLink] = useState(false);
@@ -1278,6 +1304,13 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
     setAdmobError("");
 
     try {
+      if (!AdMobService.isNative()) {
+        console.log("AdMob Sandbox: Running in browser, playing high-fidelity interactive/video simulator!");
+        setAdmobLoading(false);
+        setPhase("watching");
+        return;
+      }
+
       await AdMobService.loadAndShowRewardedAd(
         (reward) => {
           console.log("Success! Earned AdMob reward:", reward);
@@ -1320,11 +1353,16 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
       setVideoPlaying(false);
       return;
     }
+    // If running in browser sandbox, instantly activate the high-fidelity simulator
+    if (!AdMobService.isNative()) {
+      setVideoPlayFailed(true);
+      return;
+    }
     const timeout = setTimeout(() => {
       if (!videoPlaying && phase === "watching") {
         setVideoPlayFailed(true);
       }
-    }, 1500);
+    }, 4500);
     return () => clearTimeout(timeout);
   }, [phase, videoPlaying]);
 
@@ -1351,6 +1389,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
     mega_booster: { bg: "linear-gradient(135deg,#3a1a1a,#1f0d0d)", text: "⚡ Mega Tap Challenge", sub: "Tap rapidly to claim the mega reward", color: "#EF4444" },
     install: { bg: "linear-gradient(135deg,#151c2d,#0f172a)", text: "📲 Install App", sub: "Download Navi App", color: "#8B5CF6" },
     quiz: { bg: "linear-gradient(135deg,#3a1a3a,#1f0d1f)", text: "🧠 Quiz Time!", sub: "Complete to Earn", color: "#EC4899" },
+    admob_reward: { bg: "linear-gradient(135deg, #090e1a 0%, #03050a 100%)", text: "📺 AdMob Video Ad", sub: "Watch official rewarded ad to complete", color: "#EC4899" }
   };
 
   const ad = adContent[task.type] || adContent.booster;
@@ -1724,77 +1763,178 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                     }}
                   />
                 ) : (
-                  /* High-Fidelity Interactive CSS Gaming Ad Fallback */
+                  /* High-Fidelity Interactive CSS Gaming Ad Fallback (Auto-Interactive 2D Mobile Gameplay Video) */
                   <div style={{
                     position: "absolute",
                     inset: 0,
-                    background: "linear-gradient(135deg, #130a24 0%, #06020c 100%)",
+                    background: "linear-gradient(135deg, #0e0a1f 0%, #030206 100%)",
                     display: "flex",
                     flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: "20px",
+                    alignItems: "stretch",
+                    justifyContent: "space-between",
+                    padding: "16px",
                     zIndex: 2,
                     userSelect: "none",
                     width: "100%",
-                    height: "100%"
-                  }} onClick={() => setPlayableScore(s => s + 25)}>
-                    
-                    {/* Interactive floating particles */}
-                    <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", opacity: 0.35 }}>
-                      <div style={{
-                        position: "absolute",
-                        width: "120px",
-                        height: "120px",
-                        background: "radial-gradient(circle, var(--accent) 0%, transparent 70%)",
-                        top: "10%",
-                        left: "10%",
-                        filter: "blur(20px)"
-                      }} />
-                      <div style={{
-                        position: "absolute",
-                        width: "100px",
-                        height: "100px",
-                        background: "radial-gradient(circle, var(--cyan) 0%, transparent 70%)",
-                        bottom: "10%",
-                        right: "10%",
-                        filter: "blur(25px)"
-                      }} />
-                    </div>
+                    height: "100%",
+                    overflow: "hidden"
+                  }} onClick={() => {
+                    setPlayableScore(s => s + 1);
+                    if (!isMuted) {
+                      playAdSynthSound(440, "triangle", 0.08);
+                      setTimeout(() => playAdSynthSound(587.33, "sine", 0.1), 35);
+                    }
+                  }}>
+                    <style dangerouslySetInnerHTML={{ __html: `
+                      @keyframes bg-scroll {
+                        0% { background-position: 0px 0px; }
+                        100% { background-position: -400px 0px; }
+                      }
+                      @keyframes hero-attack {
+                        0% { transform: translateY(0) scale(1); }
+                        20% { transform: translate(15px, -10px) scale(1.1); }
+                        40% { transform: translate(25px, 0) scale(1.1); }
+                        100% { transform: translateY(0) scale(1); }
+                      }
+                      @keyframes boss-bob {
+                        0%, 100% { transform: translateY(0) scale(1); }
+                        50% { transform: translateY(-8px) scale(1.02); }
+                      }
+                      @keyframes particle-fly {
+                        0% { transform: translate(40px, 45px) scale(0); opacity: 0; }
+                        50% { opacity: 1; }
+                        100% { transform: translate(160px, 35px) scale(1.5); opacity: 0; }
+                      }
+                      @keyframes coin-rain-ad {
+                        0% { transform: translateY(-30px) rotate(0deg); opacity: 0; }
+                        10% { opacity: 1; }
+                        80% { opacity: 0.9; }
+                        100% { transform: translateY(180px) rotate(360deg); opacity: 0; }
+                      }
+                    ` }} />
 
-                    {/* Spinning interactive disk */}
+                    {/* Scrolling space background */}
                     <div style={{
-                      width: "72px",
-                      height: "72px",
-                      background: "radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, rgba(6, 2, 12, 0.8) 100%)",
-                      borderRadius: "50%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      border: "3px dashed var(--accent)",
-                      boxShadow: "0 0 20px rgba(139, 92, 246, 0.6)",
-                      transform: `rotate(${playableScore}deg)`,
-                      transition: "transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-                      cursor: "pointer",
-                      zIndex: 5
-                    }}>
-                      <span style={{ fontSize: "34px" }}>🎮</span>
+                      position: "absolute",
+                      inset: 0,
+                      opacity: 0.15,
+                      backgroundImage: "radial-gradient(ellipse at center, rgba(139,92,246,0.2) 0%, transparent 70%), repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 10px)",
+                      animation: "bg-scroll 20s linear infinite",
+                      pointerEvents: "none"
+                    }} />
+
+                    {/* Ad Header (Gameplay Status) */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 10, position: "relative" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span style={{ fontSize: "16px", animation: "spin 3s linear infinite" }}>🎮</span>
+                        <div>
+                          <div style={{ color: "#FFF", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px", fontFamily: "Rajdhani, sans-serif" }}>
+                            {task.type === "install" ? "NAVI APP: INVEST & CLAIM" : "HERO CRUSADE: DRAGON SIEGE 2D"}
+                          </div>
+                          <div style={{ color: "var(--muted)", fontSize: "8px" }}>Live Interactive Video Ad Playable</div>
+                        </div>
+                      </div>
+                      <div style={{ background: "rgba(236, 72, 153, 0.2)", border: "1px solid rgba(236, 72, 153, 0.3)", borderRadius: "6px", padding: "2px 6px", fontSize: "9px", color: "#f472b6", fontWeight: "700" }}>
+                        ACTIVE • PLAYABLE
+                      </div>
                     </div>
 
-                    <div style={{ color: "#FFF", zIndex: 5, marginTop: "12px", fontWeight: "800", fontSize: "14px", letterSpacing: "0.5px", fontFamily: "Rajdhani, sans-serif" }}>
-                      TAP HERE TO SPIN DISC
-                    </div>
-                    <div style={{ color: "var(--gold-light)", fontSize: "11px", fontWeight: "600", zIndex: 5, marginTop: "4px", background: "rgba(245,158,11,0.15)", border: "1px solid rgba(245,158,11,0.2)", padding: "3px 8px", borderRadius: "12px" }}>
-                      Discs Spin: {playableScore || 0}° Booster Active!
-                    </div>
-                    <p style={{ color: "var(--muted)", fontSize: "10px", textAlign: "center", zIndex: 5, marginTop: "8px", maxWidth: "250px", lineHeight: "1.3" }}>
-                      Google AdMob Responsive Playable Ad (Unit ID: ca-app-pub-1741947856013956/8677898539) loaded successfully. Watch timer above to claim premium coins!
-                    </p>
+                    {/* Combat Arena Canvas */}
+                    <div style={{ flex: 1, display: "flex", position: "relative", alignItems: "center", justifyContent: "space-between", margin: "10px 0", zIndex: 10 }}>
+                      
+                      {/* Character Left (Wizard Player) */}
+                      <div style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: 4,
+                        animation: playableScore > 0 ? "hero-attack 0.4s ease-out" : "none"
+                      }}>
+                        <div style={{ fontSize: "38px", filter: "drop-shadow(0 0 10px rgba(139, 92, 246, 0.7))" }}>🧙‍♂️</div>
+                        <div style={{ fontSize: "8px", background: "rgba(0,0,0,0.6)", padding: "1px 5px", borderRadius: 4, color: "#fff", border: "1px solid rgba(255,255,255,0.2)" }}>
+                          LVL 85 Hero
+                        </div>
+                        {/* HP Bar */}
+                        <div style={{ width: 45, height: 4, background: "#1e293b", borderRadius: 2, overflow: "hidden" }}>
+                          <div style={{ width: "95%", height: "100%", background: "#10b981" }} />
+                        </div>
+                      </div>
 
-                    <div style={{ display: "flex", gap: "6px", alignItems: "center", marginTop: "10px", zIndex: 5 }}>
-                      <span style={{ display: "inline-block", width: "6px", height: "6px", background: "var(--green)", borderRadius: "50%" }} />
-                      <span style={{ fontSize: "9px", color: "var(--green)", fontFamily: "monospace", fontWeight: "600" }}>
-                        WEB INTERACTIVE AD UNIT LIVE
+                      {/* Spell Fireball Particle shooting across */}
+                      <div style={{
+                        position: "absolute",
+                        fontSize: "20px",
+                        animation: "particle-fly 1.2s linear infinite",
+                        pointerEvents: "none"
+                      }}>
+                        ✨
+                      </div>
+
+                      {/* Dynamic Falling Coins (Raining effects) */}
+                      <div style={{ position: "absolute", inset: "0 40px", pointerEvents: "none", overflow: "hidden" }}>
+                        {[...Array(5)].map((_, i) => (
+                          <span
+                            key={i}
+                            style={{
+                              position: "absolute",
+                              left: `${i * 22}%`,
+                              top: -20,
+                              fontSize: "14px",
+                              animation: `coin-rain-ad ${1.5 + (i * 0.3)}s linear infinite`,
+                              animationDelay: `${i * 0.4}s`
+                            }}
+                          >
+                            🪙
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* Character Right (Red Dragon Boss) */}
+                      <div style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: 4,
+                        animation: "boss-bob 2s ease-in-out infinite"
+                      }}>
+                        <div style={{ fontSize: "40px", filter: "drop-shadow(0 0 12px rgba(239, 68, 68, 0.7))" }}>🐉</div>
+                        <div style={{ fontSize: "8px", background: "rgba(220,38,38,0.2)", padding: "1px 5px", borderRadius: 4, color: "#ef4444", border: "1px solid rgba(220,38,38,0.3)" }}>
+                          BOSS (HP: {Math.max(10, 1000 - (playableScore * 25))}k)
+                        </div>
+                        {/* Boss Health Bar */}
+                        <div style={{ width: 55, height: 4, background: "#1e293b", borderRadius: 2, overflow: "hidden" }}>
+                          <div style={{ width: `${Math.max(10, 100 - (playableScore * 5))}%`, height: "100%", background: "#ef4444", transition: "width 0.2s" }} />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Interactive Overlay Call to Action */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "center", zIndex: 15, position: "relative" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                        <span style={{ fontSize: "11px", color: "var(--gold)" }}>⚡ Taps Power:</span>
+                        <span style={{ fontSize: "11px", fontWeight: "700", color: "#FFF", fontFamily: "monospace" }}>+{playableScore} Gold Hits</span>
+                      </div>
+                      <div className="animate-pulse" style={{ animationDuration: "1.5s", textShadow: "0 0 8px rgba(236,72,153,0.5)", fontSize: "10px", color: "#f472b6", fontWeight: "700", textTransform: "uppercase" }}>
+                        👉 TAP ON AD SCREEN TO PLAY & MULTIPLY COINS!
+                      </div>
+                    </div>
+
+                    {/* Progress seeking tracking bar */}
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", marginTop: "8px", zIndex: 10, position: "relative" }}>
+                      <span style={{ fontSize: "9px", color: "#fff", fontFamily: "monospace", width: 25 }}>
+                        0:{(total - remaining).toString().padStart(2, '0')}
+                      </span>
+                      {/* Seek Bar Slider */}
+                      <div style={{ flex: 1, height: "4px", background: "rgba(255,255,255,0.15)", borderRadius: "2px", overflow: "hidden", position: "relative" }}>
+                        <div style={{
+                          width: `${((total - remaining) / total) * 100}%`,
+                          height: "100%",
+                          background: "linear-gradient(90deg, #ec4899, #be185d)",
+                          transition: "width 1s linear"
+                        }} />
+                      </div>
+                      <span style={{ fontSize: "9px", color: "var(--muted)", fontFamily: "monospace" }}>
+                        0:{total}
                       </span>
                     </div>
                   </div>
@@ -2028,11 +2168,16 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
       setVideoPlaying(false);
       return;
     }
+    // If running in browser sandbox, instantly activate the high-fidelity simulator
+    if (!AdMobService.isNative()) {
+      setVideoPlayFailed(true);
+      return;
+    }
     const timeout = setTimeout(() => {
       if (!videoPlaying) {
         setVideoPlayFailed(true);
       }
-    }, 1500);
+    }, 4500);
     return () => clearTimeout(timeout);
   }, [step, videoPlaying]);
 
@@ -2071,7 +2216,7 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
     if (typed.trim().toUpperCase() === code) {
       setErrorMsg("");
       setElapsed(0);
-      setStep("solved");
+      setStep("watching_ad");
     } else {
       setErrorMsg("❌ Incorrect code! Letters matching check karke dobara enter karein.");
     }
@@ -2213,77 +2358,178 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
                     }}
                   />
                 ) : (
-                  /* High-Fidelity Interactive CSS Gaming Ad Fallback */
+                  /* High-Fidelity Interactive CSS Gaming Ad Fallback (Auto-Interactive 2D Mobile Gameplay Video) */
                   <div style={{
                     position: "absolute",
                     inset: 0,
-                    background: "linear-gradient(135deg, #130a24 0%, #06020c 100%)",
+                    background: "linear-gradient(135deg, #0e0a1f 0%, #030206 100%)",
                     display: "flex",
                     flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: "20px",
+                    alignItems: "stretch",
+                    justifyContent: "space-between",
+                    padding: "16px",
                     zIndex: 2,
                     userSelect: "none",
                     width: "100%",
-                    height: "100%"
-                  }} onClick={() => setPlayableScore(s => s + 25)}>
-                    
-                    {/* Interactive floating particles */}
-                    <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", opacity: 0.35 }}>
-                      <div style={{
-                        position: "absolute",
-                        width: "120px",
-                        height: "120px",
-                        background: "radial-gradient(circle, var(--accent) 0%, transparent 70%)",
-                        top: "10%",
-                        left: "10%",
-                        filter: "blur(20px)"
-                      }} />
-                      <div style={{
-                        position: "absolute",
-                        width: "100px",
-                        height: "100px",
-                        background: "radial-gradient(circle, var(--cyan) 0%, transparent 70%)",
-                        bottom: "10%",
-                        right: "10%",
-                        filter: "blur(25px)"
-                      }} />
-                    </div>
+                    height: "100%",
+                    overflow: "hidden"
+                  }} onClick={() => {
+                    setPlayableScore(s => s + 1);
+                    if (!isMuted) {
+                      playAdSynthSound(440, "triangle", 0.08);
+                      setTimeout(() => playAdSynthSound(587.33, "sine", 0.1), 35);
+                    }
+                  }}>
+                    <style dangerouslySetInnerHTML={{ __html: `
+                      @keyframes bg-scroll {
+                        0% { background-position: 0px 0px; }
+                        100% { background-position: -400px 0px; }
+                      }
+                      @keyframes hero-attack {
+                        0% { transform: translateY(0) scale(1); }
+                        20% { transform: translate(15px, -10px) scale(1.1); }
+                        40% { transform: translate(25px, 0) scale(1.1); }
+                        100% { transform: translateY(0) scale(1); }
+                      }
+                      @keyframes boss-bob {
+                        0%, 100% { transform: translateY(0) scale(1); }
+                        50% { transform: translateY(-8px) scale(1.02); }
+                      }
+                      @keyframes particle-fly {
+                        0% { transform: translate(40px, 45px) scale(0); opacity: 0; }
+                        50% { opacity: 1; }
+                        100% { transform: translate(160px, 35px) scale(1.5); opacity: 0; }
+                      }
+                      @keyframes coin-rain-ad {
+                        0% { transform: translateY(-30px) rotate(0deg); opacity: 0; }
+                        10% { opacity: 1; }
+                        80% { opacity: 0.9; }
+                        100% { transform: translateY(180px) rotate(360deg); opacity: 0; }
+                      }
+                    ` }} />
 
-                    {/* Spinning interactive disk */}
+                    {/* Scrolling space background */}
                     <div style={{
-                      width: "72px",
-                      height: "72px",
-                      background: "radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, rgba(6, 2, 12, 0.8) 100%)",
-                      borderRadius: "50%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      border: "3px dashed var(--accent)",
-                      boxShadow: "0 0 20px rgba(139, 92, 246, 0.6)",
-                      transform: `rotate(${playableScore}deg)`,
-                      transition: "transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-                      cursor: "pointer",
-                      zIndex: 5
-                    }}>
-                      <span style={{ fontSize: "34px" }}>🎮</span>
+                      position: "absolute",
+                      inset: 0,
+                      opacity: 0.15,
+                      backgroundImage: "radial-gradient(ellipse at center, rgba(139,92,246,0.2) 0%, transparent 70%), repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 10px)",
+                      animation: "bg-scroll 20s linear infinite",
+                      pointerEvents: "none"
+                    }} />
+
+                    {/* Ad Header (Gameplay Status) */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 10, position: "relative" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span style={{ fontSize: "16px", animation: "spin 3s linear infinite" }}>🎮</span>
+                        <div>
+                          <div style={{ color: "#FFF", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px", fontFamily: "Rajdhani, sans-serif" }}>
+                            HERO CRUSADE: DRAGON SIEGE 2D
+                          </div>
+                          <div style={{ color: "var(--muted)", fontSize: "8px" }}>Live Interactive Video Ad Playable</div>
+                        </div>
+                      </div>
+                      <div style={{ background: "rgba(236, 72, 153, 0.2)", border: "1px solid rgba(236, 72, 153, 0.3)", borderRadius: "6px", padding: "2px 6px", fontSize: "9px", color: "#f472b6", fontWeight: "700" }}>
+                        ACTIVE • PLAYABLE
+                      </div>
                     </div>
 
-                    <div style={{ color: "#FFF", zIndex: 5, marginTop: "12px", fontWeight: "800", fontSize: "14px", letterSpacing: "0.5px", fontFamily: "Rajdhani, sans-serif" }}>
-                      TAP HERE TO PLAY DEMO
-                    </div>
-                    <div style={{ color: "var(--gold-light)", fontSize: "11px", fontWeight: "600", zIndex: 5, marginTop: "4px", background: "rgba(245,158,11,0.15)", border: "1px solid rgba(245,158,11,0.2)", padding: "3px 8px", borderRadius: "12px" }}>
-                      Discs Spin: {playableScore || 0}° Booster Active!
-                    </div>
-                    <p style={{ color: "var(--muted)", fontSize: "10px", textAlign: "center", zIndex: 5, marginTop: "8px", maxWidth: "250px", lineHeight: "1.3" }}>
-                      Google AdMob Responsive Playable Ad (Unit ID: ca-app-pub-1741947856013956/8677898539) loaded successfully. Watch timer above to claim premium coins!
-                    </p>
+                    {/* Combat Arena Canvas */}
+                    <div style={{ flex: 1, display: "flex", position: "relative", alignItems: "center", justifyContent: "space-between", margin: "10px 0", zIndex: 10 }}>
+                      
+                      {/* Character Left (Wizard Player) */}
+                      <div style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: 4,
+                        animation: playableScore > 0 ? "hero-attack 0.4s ease-out" : "none"
+                      }}>
+                        <div style={{ fontSize: "38px", filter: "drop-shadow(0 0 10px rgba(139, 92, 246, 0.7))" }}>🧙‍♂️</div>
+                        <div style={{ fontSize: "8px", background: "rgba(0,0,0,0.6)", padding: "1px 5px", borderRadius: 4, color: "#fff", border: "1px solid rgba(255,255,255,0.2)" }}>
+                          LVL 85 Hero
+                        </div>
+                        {/* HP Bar */}
+                        <div style={{ width: 45, height: 4, background: "#1e293b", borderRadius: 2, overflow: "hidden" }}>
+                          <div style={{ width: "95%", height: "100%", background: "#10b981" }} />
+                        </div>
+                      </div>
 
-                    <div style={{ display: "flex", gap: "6px", alignItems: "center", marginTop: "10px", zIndex: 5 }}>
-                      <span style={{ display: "inline-block", width: "6px", height: "6px", background: "var(--green)", borderRadius: "50%" }} />
-                      <span style={{ fontSize: "9px", color: "var(--green)", fontFamily: "monospace", fontWeight: "600" }}>
-                        WEB INTERACTIVE AD UNIT LIVE
+                      {/* Spell Fireball Particle shooting across */}
+                      <div style={{
+                        position: "absolute",
+                        fontSize: "20px",
+                        animation: "particle-fly 1.2s linear infinite",
+                        pointerEvents: "none"
+                      }}>
+                        ✨
+                      </div>
+
+                      {/* Dynamic Falling Coins (Raining effects) */}
+                      <div style={{ position: "absolute", inset: "0 40px", pointerEvents: "none", overflow: "hidden" }}>
+                        {[...Array(5)].map((_, i) => (
+                          <span
+                            key={i}
+                            style={{
+                              position: "absolute",
+                              left: `${i * 22}%`,
+                              top: -20,
+                              fontSize: "14px",
+                              animation: `coin-rain-ad ${1.5 + (i * 0.3)}s linear infinite`,
+                              animationDelay: `${i * 0.4}s`
+                            }}
+                          >
+                            🪙
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* Character Right (Red Dragon Boss) */}
+                      <div style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: 4,
+                        animation: "boss-bob 2s ease-in-out infinite"
+                      }}>
+                        <div style={{ fontSize: "40px", filter: "drop-shadow(0 0 12px rgba(239, 68, 68, 0.7))" }}>🐉</div>
+                        <div style={{ fontSize: "8px", background: "rgba(220,38,38,0.2)", padding: "1px 5px", borderRadius: 4, color: "#ef4444", border: "1px solid rgba(220,38,38,0.3)" }}>
+                          BOSS (HP: {Math.max(10, 1000 - (playableScore * 25))}k)
+                        </div>
+                        {/* Boss Health Bar */}
+                        <div style={{ width: 55, height: 4, background: "#1e293b", borderRadius: 2, overflow: "hidden" }}>
+                          <div style={{ width: `${Math.max(10, 100 - (playableScore * 5))}%`, height: "100%", background: "#ef4444", transition: "width 0.2s" }} />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Interactive Overlay Call to Action */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "center", zIndex: 15, position: "relative" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                        <span style={{ fontSize: "11px", color: "var(--gold)" }}>⚡ Taps Power:</span>
+                        <span style={{ fontSize: "11px", fontWeight: "700", color: "#FFF", fontFamily: "monospace" }}>+{playableScore} Gold Hits</span>
+                      </div>
+                      <div className="animate-pulse" style={{ animationDuration: "1.5s", textShadow: "0 0 8px rgba(236,72,153,0.5)", fontSize: "10px", color: "#f472b6", fontWeight: "700", textTransform: "uppercase" }}>
+                        👉 TAP ON AD SCREEN TO PLAY & MULTIPLY COINS!
+                      </div>
+                    </div>
+
+                    {/* Progress seeking tracking bar */}
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", marginTop: "8px", zIndex: 10, position: "relative" }}>
+                      <span style={{ fontSize: "9px", color: "#fff", fontFamily: "monospace", width: 25 }}>
+                        0:{(timer - remaining).toString().padStart(2, '0')}
+                      </span>
+                      {/* Seek Bar Slider */}
+                      <div style={{ flex: 1, height: "4px", background: "rgba(255,255,255,0.15)", borderRadius: "2px", overflow: "hidden", position: "relative" }}>
+                        <div style={{
+                          width: `${((timer - remaining) / timer) * 100}%`,
+                          height: "100%",
+                          background: "linear-gradient(90deg, #ec4899, #be185d)",
+                          transition: "width 1s linear"
+                        }} />
+                      </div>
+                      <span style={{ fontSize: "9px", color: "var(--muted)", fontFamily: "monospace" }}>
+                        0:{timer}
                       </span>
                     </div>
                   </div>
