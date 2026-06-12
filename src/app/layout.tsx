@@ -11,6 +11,9 @@ export const metadata = {
     statusBarStyle: "default",
     title: "Cash Earn",
   },
+  other: {
+    monetag: "7b5edfb692ef413093ac9073ec0b03ab",
+  }
 };
 
 export const viewport = {
