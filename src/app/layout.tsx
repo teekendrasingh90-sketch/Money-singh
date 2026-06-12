@@ -27,6 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta name="monetag" content="7b5edfb692ef413093ac9073ec0b03ab" />
         <script
           dangerouslySetInnerHTML={{
             __html: `

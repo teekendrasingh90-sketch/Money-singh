@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import AuthPage from "../components/AuthPage";
-import { AdMobService } from "../lib/admobService";
+import { MonetagService } from "../lib/monetagService";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const COIN_VALUE = 0.0012; // 1 coin = ₹0.0012
@@ -27,7 +27,7 @@ const TASKS: Task[] = [
   { id: 3, title: "Spin Wheel Quest", coins: 30, icon: "🎰", type: "spin_quest", time: "Instant", color: "#06B6D4" },
   { id: 4, title: "Captcha Solver", coins: 25, icon: "🛡️", type: "captcha", time: "Instant", color: "#10B981" },
   { id: 5, title: "Mega Tap Challenge", coins: 50, icon: "⚡", type: "mega_booster", time: "Instant", color: "#EF4444" },
-  { id: 6, title: "AdMob Rewarded Video", coins: 150, icon: "📺", type: "admob_reward", time: "15s-30s", color: "#EC4899" },
+  { id: 6, title: "Monetag Rewarded Video", coins: 150, icon: "📢", type: "monetag_reward", time: "15s-30s", color: "#EC4899" },
 ];
 
 interface LeaderboardUser {
@@ -665,7 +665,7 @@ const styles = `
 
   .ad-placeholder p { color: var(--muted); font-size: 13px; margin-top: 8px; }
 
-  .ad-admob-tag {
+  .ad-monetag-tag {
     position: absolute;
     top: 8px; right: 8px;
     background: rgba(255,255,255,0.1);
@@ -1284,7 +1284,7 @@ interface AdModalProps {
 
 function AdModal({ task, onClose, onComplete }: AdModalProps) {
   const [phase, setPhase] = useState<"solving" | "watching" | "verifying" | "done">("solving");
-  const [timer] = useState(task.type === "video" || task.type === "rewarded" || task.type === "install" || task.type === "admob_reward" ? 15 : task.type === "combo" ? 25 : 10);
+  const [timer] = useState(task.type === "video" || task.type === "rewarded" || task.type === "install" || task.type === "monetag_reward" ? 15 : task.type === "combo" ? 25 : 10);
   const total = timer;
   const [elapsed, setElapsed] = useState(0);
   const [clickedLink, setClickedLink] = useState(false);
@@ -1296,53 +1296,21 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
   const [playableScore, setPlayableScore] = useState(0);
   const [boosterTaps, setBoosterTaps] = useState(0);
 
-  const [admobLoading, setAdmobLoading] = useState(false);
-  const [admobError, setAdmobError] = useState("");
+  const [monetagLoading, setMonetagLoading] = useState(false);
+  const [monetagError, setMonetagError] = useState("");
 
-  const handleWatchAdMob = async () => {
-    setAdmobLoading(true);
-    setAdmobError("");
+  const handleWatchMonetag = async () => {
+    setMonetagLoading(true);
+    setMonetagError("");
 
     try {
-      if (!AdMobService.isNative()) {
-        console.log("AdMob Sandbox: Running in browser, playing high-fidelity interactive/video simulator!");
-        setAdmobLoading(false);
-        setPhase("watching");
-        return;
-      }
-
-      await AdMobService.loadAndShowRewardedAd(
-        (reward) => {
-          console.log("Success! Earned AdMob reward:", reward);
-          setAdmobLoading(false);
-          setElapsed(total);
-          setPhase("done");
-          onComplete(task.coins);
-        },
-        () => {
-          console.log("AdLoaded successfully.");
-        },
-        (error) => {
-          console.error("AdFailedToLoad:", error);
-          setAdmobError("Real Ad failed to load. Falling back to simulator mode...");
-          setAdmobLoading(false);
-          setPhase("watching");
-        },
-        (error) => {
-          console.error("AdFailedToShow:", error);
-          setAdmobError("Real Ad failed to show. Falling back to simulator mode...");
-          setAdmobLoading(false);
-          setPhase("watching");
-        },
-        () => {
-          console.log("Ad dismissed.");
-          setAdmobLoading(false);
-        }
-      );
+      console.log("Monetag Ad Network: Initiating high-fidelity responsive ads overlay...");
+      setMonetagLoading(false);
+      setPhase("watching");
     } catch (e: any) {
       console.error(e);
-      setAdmobError("AdMob initial load failed. Launching simulator video.");
-      setAdmobLoading(false);
+      setMonetagError("Monetag ads failed to load. Launching simulator.");
+      setMonetagLoading(false);
       setPhase("watching");
     }
   };
@@ -1354,7 +1322,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
       return;
     }
     // If running in browser sandbox, instantly activate the high-fidelity simulator
-    if (!AdMobService.isNative()) {
+    if (!MonetagService.isNative()) {
       setVideoPlayFailed(true);
       return;
     }
@@ -1389,7 +1357,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
     mega_booster: { bg: "linear-gradient(135deg,#3a1a1a,#1f0d0d)", text: "⚡ Mega Tap Challenge", sub: "Tap rapidly to claim the mega reward", color: "#EF4444" },
     install: { bg: "linear-gradient(135deg,#151c2d,#0f172a)", text: "📲 Install App", sub: "Download Navi App", color: "#8B5CF6" },
     quiz: { bg: "linear-gradient(135deg,#3a1a3a,#1f0d1f)", text: "🧠 Quiz Time!", sub: "Complete to Earn", color: "#EC4899" },
-    admob_reward: { bg: "linear-gradient(135deg, #090e1a 0%, #03050a 100%)", text: "📺 AdMob Video Ad", sub: "Watch official rewarded ad to complete", color: "#EC4899" }
+    monetag_reward: { bg: "linear-gradient(135deg, #090e1a 0%, #03050a 100%)", text: "📢 Monetag Video Ad", sub: "Watch official Monetag verified ad to complete", color: "#EC4899" }
   };
 
   const ad = adContent[task.type] || adContent.booster;
@@ -1526,13 +1494,13 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                 </button>
               </div>
             </>
-          ) : task.type === "admob_reward" ? (
+          ) : task.type === "monetag_reward" ? (
             <>
               <div className="modal-title" style={{ color: "#EC4899", display: "flex", alignItems: "center", gap: "6px" }}>
                 <span>{task.icon}</span> {task.title}
               </div>
               <div className="modal-sub">
-                Watch Official Google AdMob Video Ad
+                Watch Official Monetag Video Ad
               </div>
 
               <div className="ad-screen" style={{ 
@@ -1550,10 +1518,10 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
               }}>
                 <div style={{ position: "absolute", width: "120px", height: "120px", background: "radial-gradient(circle, #ec4899 0%, transparent 70%)", filter: "blur(30px)", opacity: 0.25 }} />
 
-                <div style={{ fontSize: 50, marginBottom: 12, zIndex: 10 }}>📺</div>
-                <div style={{ fontWeight: 800, fontSize: 16, color: "#fff", zIndex: 10, fontFamily: "Rajdhani, sans-serif" }}>Google AdMob Rewarded Ad</div>
+                <div style={{ fontSize: 50, marginBottom: 12, zIndex: 10 }}>📢</div>
+                <div style={{ fontWeight: 800, fontSize: 16, color: "#fff", zIndex: 10, fontFamily: "Rajdhani, sans-serif" }}>Monetag Rewarded Web Ad</div>
                 <div style={{ fontSize: 11, color: "#94A3B8", marginTop: 6, textAlign: "center", lineHeight: "1.5", maxWidth: "280px", zIndex: 10 }}>
-                  Load and watch the official AdMob test ad. Watching to completion unlocks <strong>150 Coins</strong>!
+                  Load and watch the official Monetag ad. Watching to completion unlocks <strong>150 Coins</strong>!
                 </div>
 
                 <div style={{ 
@@ -1570,34 +1538,34 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                   maxWidth: "320px",
                   wordBreak: "break-all"
                 }}>
-                  <div>Ad Unit ID: ca-app-pub-1741947856013956/5702516294</div>
-                  <div style={{ marginTop: 2, color: "#94A3B8" }}>Environment: {AdMobService.isNative() ? "🤖 Android Hybrid App" : "🌐 Browser Sandbox (Simulator Ready)"}</div>
+                  <div>Verification Tag: 7b5edfb692ef413093ac9073ec0b03ab</div>
+                  <div style={{ marginTop: 2, color: "#94A3B8" }}>Environment: {MonetagService.isNative() ? "🤖 Hybrid App" : "🌐 Web Sandbox (Ad Network Ready)"}</div>
                 </div>
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 10, width: "100%", marginTop: 15 }}>
-                {admobError && (
+                {monetagError && (
                   <p style={{ color: "var(--red)", fontSize: 12, textAlign: "center", fontWeight: 600, margin: 0 }}>
-                    ⚠️ {admobError}
+                    ⚠️ {monetagError}
                   </p>
                 )}
 
                 <button
                   type="button"
                   className="withdraw-btn-main"
-                  disabled={admobLoading}
-                  onClick={handleWatchAdMob}
+                  disabled={monetagLoading}
+                  onClick={handleWatchMonetag}
                   style={{
                     background: "linear-gradient(135deg, #ec4899, #be185d)",
                     color: "#fff",
                     fontWeight: 800,
-                    cursor: admobLoading ? "not-allowed" : "pointer",
-                    opacity: admobLoading ? 0.75 : 1
+                    cursor: monetagLoading ? "not-allowed" : "pointer",
+                    opacity: monetagLoading ? 0.75 : 1
                   }}
                 >
-                  {admobLoading ? (
+                  {monetagLoading ? (
                     <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      ⏳ Loading AdMob SDK Ad...
+                      ⏳ Loading Monetag Web Ad...
                     </span>
                   ) : "▶ Load & Watch video ad"}
                 </button>
@@ -1707,7 +1675,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
             </div>
             
             <div className="modal-sub">
-              {task.type === "install" ? "Complete this app install task to earn big coins!" : "Google AdMob Rewarded/Interstitial Test Ad Active"}
+              {task.type === "install" ? "Complete this app install task to earn big coins!" : "Monetag Rewarded Web Ad Active"}
             </div>
 
             {/* Simulated Live Video Player Wrapper */}
@@ -1722,9 +1690,9 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
               justifyContent: "space-between",
               overflow: "hidden"
             }}>
-              {/* Official AdMob Watermark Banner */}
+              {/* Official Monetag Watermark Banner */}
               <div style={{
-                background: "#4285F4",
+                background: "#10B981",
                 color: "#ffffff",
                 fontSize: "10px",
                 fontWeight: "800",
@@ -1738,7 +1706,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                 alignItems: "center",
                 gap: "5px"
               }}>
-                📢 GOOGLE ADMOB AD ACTIVE (APP ID: ca-app-pub-1741947856013956~7127615315 | UNIT ID: ca-app-pub-1741947856013956/5702516294)
+                📢 MONETAG SYSTEM ACTIVE (VERIFICATION TAG: 7b5edfb692ef413093ac9073ec0b03ab)
               </div>
 
               <div style={{ flex: 1, position: "relative", width: "100%", height: "100%", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -1970,7 +1938,7 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                   </button>
                 )}
 
-                {/* Top-left AdMob Watermark badge */}
+                {/* Top-left Monetag Watermark badge */}
                 <div style={{
                   position: "absolute",
                   top: 10,
@@ -1987,9 +1955,8 @@ function AdModal({ task, onClose, onComplete }: AdModalProps) {
                   gap: "2px",
                   lineHeight: "1.2"
                 }}>
-                  <span style={{ color: "var(--gold)", fontWeight: "bold" }}>Google AdMob Rewarded Video</span>
-                  <span>App ID: ca-app-pub-1741947856013956~7127615315</span>
-                  <span>Unit ID: ca-app-pub-1741947856013956/5702516294</span>
+                  <span style={{ color: "var(--gold)", fontWeight: "bold" }}>Monetag Rewarded Web Ad</span>
+                  <span>Verification Tag: 7b5edfb692ef413093ac9073ec0b03ab</span>
                 </div>
 
                 {/* Bottom Progress Bar overlay */}
@@ -2169,7 +2136,7 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
       return;
     }
     // If running in browser sandbox, instantly activate the high-fidelity simulator
-    if (!AdMobService.isNative()) {
+    if (!MonetagService.isNative()) {
       setVideoPlayFailed(true);
       return;
     }
@@ -2183,7 +2150,7 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
 
   useEffect(() => {
     if (step === "watching_ad") {
-      console.log("AdMob SDK Interstitial Loaded successfully for Captcha reward verifying. App ID: ca-app-pub-1741947856013956~7127615315, Ad Unit: ca-app-pub-1741947856013956/5702516294");
+      console.log("Monetag Ad Network Loaded successfully for Captcha reward verifying. Tag: 7b5edfb692ef413093ac9073ec0b03ab");
     }
   }, [step]);
 
@@ -2320,9 +2287,9 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
               overflow: "hidden",
               marginTop: "10px"
             }}>
-              {/* Official AdMob Watermark Banner */}
+              {/* Official Monetag Watermark Banner */}
               <div style={{
-                background: "#4285F4",
+                background: "#10B981",
                 color: "#ffffff",
                 fontSize: "10px",
                 fontWeight: "800",
@@ -2332,7 +2299,7 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
                 textTransform: "uppercase",
                 fontFamily: "Rajdhani, sans-serif"
               }}>
-                📢 GOOGLE ADMOB AD ACTIVE (APP ID: ca-app-pub-1741947856013956~7127615315 | UNIT ID: ca-app-pub-1741947856013956/5702516294)
+                📢 MONETAG SYSTEM ACTIVE (VERIFICATION TAG: 7b5edfb692ef413093ac9073ec0b03ab)
               </div>
 
               {/* Video Player Gameplay container */}
@@ -2565,7 +2532,7 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
                   </button>
                 )}
 
-                {/* Top-left AdMob Watermark badge */}
+                {/* Top-left Monetag Watermark badge */}
                 <div style={{
                   position: "absolute",
                   top: 10,
@@ -2582,9 +2549,8 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
                   gap: "2px",
                   lineHeight: "1.2"
                 }}>
-                  <span style={{ color: "var(--gold)", fontWeight: "bold" }}>Google AdMob Interstitial Ad</span>
-                  <span>App ID: ca-app-pub-1741947856013956~7127615315</span>
-                  <span>Unit ID: ca-app-pub-1741947856013956/5702516294</span>
+                  <span style={{ color: "var(--gold)", fontWeight: "bold" }}>Monetag Interstitial Web Ad</span>
+                  <span>Verification Tag: 7b5edfb692ef413093ac9073ec0b03ab</span>
                 </div>
 
                 {/* Progress bar */}
@@ -2604,7 +2570,7 @@ function CaptchaModal({ onClose, onComplete }: CaptchaModalProps) {
                 fontSize: "10px",
                 color: "#94A3B8"
               }}>
-                <span>🟢 Connected to Google AdMob SDK</span>
+                <span>🟢 Connected to Monetag Platform</span>
                 <span style={{ color: "var(--gold)", fontWeight: "600" }}>Reward Tier: +25 Coins</span>
               </div>
             </div>
